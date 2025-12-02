@@ -1,0 +1,82 @@
+﻿.add-hotel-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    gap: 40px;
+}
+
+.image-side {
+    text-align: center;
+}
+
+.hotel-illustration {
+    width: 420px;
+    border-radius: 20px;
+}
+
+.title-big {
+    font-size: 48px;
+    color: #2C395E;
+    margin-top: 20px;
+}
+
+.title-accent {
+    font-size: 55px;
+    color: #4A6DA3;
+    margin-top: -15px;
+}
+
+.form-side {
+    background: #C3E3F7;
+    padding: 40px;
+    border-radius: 25px;
+    width: 480px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.form-title {
+    text-align: center;
+    color: #2C395E;
+    font-size: 36px;
+    margin-bottom: 25px;
+}
+
+label {
+    font-size: 20px;
+    color: #2C395E;
+    margin-top: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 15px;
+    border: none;
+    margin: 8px 0 15px 0;
+    background: #ffffff;
+    font-size: 18px;
+}
+
+.file-upload {
+    background: #fff;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.add-btn {
+    width: 100%;
+    background: #F0A92A;
+    padding: 15px;
+    border-radius: 20px;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    margin-top: 25px;
+    transition: 0.3s;
+}
+
+    .add-btn:hover {
+        background: #DB8F19;
+    }

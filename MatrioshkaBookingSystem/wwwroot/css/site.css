@@ -1,0 +1,15 @@
+.navbar {
+    background-color: #112246 !important;
+    padding: 20px;
+    font-size: 22px;
+}
+
+    .navbar a {
+        color: #d4e6ff !important;
+        font-family: "Georgia";
+        margin-right: 25px;
+    }
+
+        .navbar a:hover {
+            color: #ffffff !important;
+        }

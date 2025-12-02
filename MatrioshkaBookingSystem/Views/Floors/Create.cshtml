@@ -1,0 +1,43 @@
+﻿@model MatrioshkaBookingSystem.Models.Floor
+
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/floors.css" />
+}
+
+<div class="floor-wrapper">
+
+    <div class="floor-sidebar">
+        <h1 class="floor-title-main">Add a</h1>
+        <h1 class="floor-title-accent">Floor</h1>
+    </div>
+
+    <div class="floor-form-card">
+        <h2 class="floor-form-title">Floor Information</h2>
+
+        <form method="post" asp-action="Create" asp-controller="Floors">
+            @Html.AntiForgeryToken()
+
+            <label>Hotel:</label>
+            <select name="HotelId" required>
+                @foreach (var h in ViewBag.Hotels)
+                {
+                    <option value="@h.HotelId">@h.HotelName</option>
+                }
+            </select>
+
+            <label>Floor Status:</label>
+            <select name="FloorStatus">
+                <option value="Available">Available</option>
+                <option value="Non-Available">Non-Available</option>
+            </select>
+
+            <button type="submit" class="btn-submit">Create Floor</button>
+        </form>
+    </div>
+
+</div>

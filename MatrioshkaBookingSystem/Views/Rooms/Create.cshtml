@@ -1,0 +1,89 @@
+﻿@model MatrioshkaBookingSystem.Models.Room
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/rooms.css" />
+}
+
+<div class="room-wrapper">
+
+    <div class="side-illustration">
+        <img src="~/img/logohotel.png" class="room-img" alt="Cute Room Illustration" />
+        <h1 class="big-title">Add a new</h1>
+        <h1 class="accent-title">Room</h1>
+    </div>
+
+    <div class="form-section">
+        <div class="form-card">
+
+            <h2 class="form-title">Room Information</h2>
+
+            <form method="post">
+
+                <!-- HOTEL SELECT -->
+                <label>Hotel:</label>
+                <select id="hotelSelect" required>
+                    <option disabled selected>Select a Hotel</option>
+                    @foreach (var h in ViewBag.Hotels)
+                    {
+                        <option value="@h.HotelId">@h.HotelName</option>
+                    }
+                </select>
+
+                <!-- DYNAMIC FLOOR SELECT -->
+                <label>Floor:</label>
+                <select name="FloorId" id="floorSelect" required>
+                    <option disabled selected>Select a Floor</option>
+                </select>
+
+                <!-- ROOM TYPE -->
+                <label>Room Type:</label>
+                <select name="TypeId" required>
+                    @foreach (var t in ViewBag.RoomTypes)
+                    {
+                        <option value="@t.TypeId">@t.TypeName</option>
+                    }
+                </select>
+
+                <!-- STATUS -->
+                <label>Status:</label>
+                <select name="RoomStatus">
+                    <option value="Available">Available</option>
+                    <option value="Occupied">Occupied</option>
+                    <option value="Maintenance">Maintenance</option>
+                </select>
+
+                <button type="submit" class="create-btn">Create Room</button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("hotelSelect").addEventListener("change", function () {
+            const hotelId = this.value;
+
+            fetch(`/Rooms/GetFloorsByHotel?hotelId=${hotelId}`)
+                .then(res => res.json())
+                .then(floors => {
+                    const floorSelect = document.getElementById("floorSelect");
+                    floorSelect.innerHTML = "";
+
+                    floors.forEach(f => {
+                        const opt = document.createElement("option");
+                        opt.value = f.floorId;
+                        opt.textContent = `Floor ${f.floorId} (${f.floorStatus})`;
+                        floorSelect.appendChild(opt);
+                    });
+                });
+        });
+    </script>
+}

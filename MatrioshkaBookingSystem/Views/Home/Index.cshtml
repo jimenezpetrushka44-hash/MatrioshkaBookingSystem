@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "_Layout";
+
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/welcome.css" />
+}
+
+<div class="welcome-wrapper">
+
+    <div class="doll-column">
+        <img src="~/img/matrioshka.png" class="doll-img" alt="Matrioshka">
+    </div>
+
+    <div class="login-column">
+        <div class="welcome-container">
+
+            <h1>Matrioshka's Booking</h1>
+
+            <div class="login-box">
+                <h2>Welcome User! :)</h2>
+
+                <form method="post" asp-action="Login" asp-controller="Home">
+
+                    <label>Username:</label>
+                    <input type="text" name="username" required />
+
+                    <label>Password:</label>
+                    <input type="password" name="password" required />
+
+                    <div class="button-row">
+                        <button type="submit">Log In</button>
+                    </div>
+
+                    <div class="login-link-box">
+                        <a href="/Home/Register" class="login-link">Create a new account</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</div>

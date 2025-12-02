@@ -1,0 +1,48 @@
+﻿@model MatrioshkaBookingSystem.Models.Hotel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/hotels.css" />
+}
+
+<div class="add-hotel-wrapper">
+
+    <div class="image-side">
+        <img src="~/img/logohotel.png" class="hotel-illustration" alt="Hotel Illustration" />
+        <h1 class="title-big">Add your new</h1>
+        <h1 class="title-accent">Hotel</h1>
+    </div>
+
+    <div class="form-side">
+
+        <div class="form-box">
+
+            <h2 class="form-title">Hotel Information</h2>
+
+            <form method="post" enctype="multipart/form-data">
+
+                <label>Hotel Name:</label>
+                <input type="text" name="HotelName" required />
+
+                <label>Location:</label>
+                <input type="text" name="HotelLocation" required />
+
+                <label>Hotel Status:</label>
+                <select name="HotelStatus">
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Maintenance">Maintenance</option>
+                </select>
+
+                <label>Upload Image:</label>
+                <input type="file" name="HotelImage" accept="image/*" class="file-upload" />
+
+                <button type="submit" class="add-btn">
+                    ADD HOTEL
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

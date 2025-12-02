@@ -1,0 +1,28 @@
+﻿@model MatrioshkaBookingSystem.Models.ClientViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clients.css" />
+}
+
+<div class="clients-wrapper">
+
+    <h1 class="title">Available Hotels</h1>
+
+    <div class="hotel-grid">
+        @foreach (var hotel in Model.Hotels)
+        {
+            <div class="hotel-card">
+                <img src="@hotel.ImagePath" class="hotel-image" />
+
+                <h2>@hotel.HotelName</h2>
+                <p class="location">@hotel.HotelLocation</p>
+                <p class="status">@hotel.HotelStatus</p>
+
+                <a href="/Bookings/Create?hotelId=@hotel.HotelId" class="book-btn">
+                    Book Now
+                </a>
+            </div>
+        }
+    </div>
+
+</div>

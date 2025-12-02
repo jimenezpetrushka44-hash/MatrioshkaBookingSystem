@@ -1,0 +1,56 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/welcome.css" />
+}
+
+<div class="welcome-wrapper">
+
+    <div class="doll-column">
+        <img src="~/img/matrioshka.png" class="doll-img" alt="Matrioshka">
+    </div>
+
+    <div class="login-column">
+        <div class="welcome-container">
+            <h1>Create Account</h1>
+
+            <div class="login-box">
+                <h2>Sign Up</h2>
+
+                <form method="post" asp-action="Register">
+
+                    <label>First Name:</label>
+                    <input type="text" name="firstName" required />
+
+                    <label>Last Name:</label>
+                    <input type="text" name="lastName" required />
+
+                    <label>Email:</label>
+                    <input type="email" name="email" required />
+
+                    <label>Phone:</label>
+                    <input type="text" name="phone" required />
+
+                    <label>Username:</label>
+                    <input type="text" name="username" required />
+
+                    <label>Password:</label>
+                    <input type="password" name="password" required />
+                    <label>Select Role:</label>
+                    <select name="role" required>
+                        <option value="Admin">Admin</option>
+                        <option value="Client">Client</option>
+                    </select>
+                    <div class="button-row">
+                        <button type="submit">Create Account</button>
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <a href="/Home/Index" class="login-link">Already a user? Log In</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</div>
