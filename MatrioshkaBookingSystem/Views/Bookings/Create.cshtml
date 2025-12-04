@@ -1,48 +1,75 @@
 ﻿@model MatrioshkaBookingSystem.Models.Booking
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Reserva";
+    ViewData["BodyClass"] = "admin-page booking-create-page";
 }
 
-<h1>Create</h1>
+@section Styles {
+        {{/* ASEGÚRATE DE QUE LA RUTA DEL ARCHIVO ES CORRECTA */}}
+    <link rel="stylesheet" href="~/css/booking.css" />
+}
 
-<h4>Booking</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="RoomId" class="control-label"></label>
-                <select asp-for="RoomId" class ="form-control" asp-items="ViewBag.RoomId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="BillingId" class="control-label"></label>
-                <select asp-for="BillingId" class ="form-control" asp-items="ViewBag.BillingId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateofBooking" class="control-label"></label>
-                <input asp-for="DateofBooking" class="form-control" />
-                <span asp-validation-for="DateofBooking" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndofBooking" class="control-label"></label>
-                <input asp-for="EndofBooking" class="form-control" />
-                <span asp-validation-for="EndofBooking" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="booking-wrapper">
+
+    <div class="side-illustration">
+        <h1 class="big-title">Crear una</h1>
+        <h1 class="accent-title">Reserva</h1>
+        <p class="form-note">
+            Completa los detalles de la reserva para asignar una habitación a un usuario.
+        </p>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="form-section">
+        <div class="form-card">
+            <h2 class="form-title">Detalles de la Reserva</h2>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="UserId" class="control-label">Usuario:</label>
+                    <select asp-for="UserId" class="form-control select-styled" asp-items="ViewBag.UserId">
+                        <option disabled selected>Selecciona un Usuario</option>
+                    </select>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RoomId" class="control-label">Habitación:</label>
+                    <select asp-for="RoomId" class="form-control select-styled" asp-items="ViewBag.RoomId">
+                        <option disabled selected>Selecciona una Habitación</option>
+                    </select>
+                    <span asp-validation-for="RoomId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="BillingId" class="control-label">Info. Facturación:</label>
+                    <select asp-for="BillingId" class="form-control select-styled" asp-items="ViewBag.BillingId">
+                        <option disabled selected>Selecciona Info. de Facturación</option>
+                    </select>
+                    <span asp-validation-for="BillingId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DateofBooking" class="control-label">Fecha de Inicio:</label>
+                    <input asp-for="DateofBooking" class="form-control" type="date" /> {{/* 🛑 CORRECCIÓN CLAVE */}}
+                    <span asp-validation-for="DateofBooking" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="EndofBooking" class="control-label">Fecha de Fin:</label>
+                    <input asp-for="EndofBooking" class="form-control" type="date" /> {{/* 🛑 CORRECCIÓN CLAVE */}}
+                    <span asp-validation-for="EndofBooking" class="text-danger"></span>
+                </div>
+
+                <div class="form-group submit-group">
+                    <button type="submit" value="Create" class="btn btn-primary create-btn">Crear Reserva</button>
+                    <a asp-action="Index" class="btn btn-secondary back-btn">Volver a la Lista</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

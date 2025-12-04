@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace MatrioshkaBookingSystem.Models;
 
@@ -19,6 +20,7 @@ public partial class Booking
 
     public virtual Billinginfo? Billing { get; set; }
 
+    [ValidateNever]
     public virtual ICollection<Bookingextraasset> Bookingextraassets { get; set; } = new List<Bookingextraasset>();
 
     public virtual Room? Room { get; set; }

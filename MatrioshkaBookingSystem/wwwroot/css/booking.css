@@ -1,0 +1,127 @@
+﻿body {
+    background-color: #C3E3F7;
+    font-family: "Georgia", serif;
+    color: #0B0E1D;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    font-size: 16px;
+    color: #4C5B88;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #b7d7ee;
+    font-size: 16px;
+    margin-top: 5px;
+    background-color: #F6FAFF;
+}
+
+.booking-wrapper {
+    display: flex;
+    max-width: 1200px;
+    margin: 60px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 18px;
+    overflow: hidden;
+    background-color: white;
+}
+
+.side-illustration {
+    flex: 0 0 40%;
+    padding: 40px;
+    background-color: #C3E3F7;
+    color: #4C5B88;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.big-title {
+    font-size: 44px;
+    margin-bottom: 0;
+    font-weight: 300;
+    color: #4C5B88;
+}
+
+.accent-title {
+    font-size: 48px;
+    margin-top: -10px;
+    color: #81C5EE;
+    font-weight: bold;
+}
+
+.form-note {
+    margin-top: 20px;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.form-section {
+    flex: 1;
+    padding: 40px;
+}
+
+.form-card {
+    padding: 0;
+}
+
+.form-title {
+    font-size: 28px;
+    color: #4C5B88;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #b7d7ee;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.submit-group {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.create-btn {
+    margin-top: 0;
+    background-color: #81C5EE;
+    padding: 14px 22px;
+    border-radius: 12px;
+    width: 100%;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.2s;
+}
+
+    .create-btn:hover {
+        background-color: #6899D7;
+        cursor: pointer;
+    }
+
+.back-btn {
+    background-color: #F6FAFF;
+    padding: 14px 22px;
+    border: 1px solid #b7d7ee;
+    color: #4C5B88;
+    text-decoration: none;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.2s;
+    width: 100%;
+}
+
+    .back-btn:hover {
+        background-color: #e2e6ea;
+    }
