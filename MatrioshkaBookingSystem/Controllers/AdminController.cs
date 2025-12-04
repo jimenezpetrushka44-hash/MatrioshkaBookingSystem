@@ -25,13 +25,21 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(r => r.Floor)
                 .ThenInclude(f => f.Hotel)
                 .Include(r => r.Type).ToList();
+            var bookings = _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Room)
+                .ThenInclude(r => r.Floor)
+                .ThenInclude(f => f.Hotel)
+                .Include(b => b.Room)
+                .ThenInclude(r => r.Type).ToList();
 
             var model = new AdminViewModel
             {
                 Users = users,
                 Hotels = hotels,
                 Floors = floors,
-                Rooms = rooms
+                Rooms = rooms,
+                Bookings = bookings
 
             };
 

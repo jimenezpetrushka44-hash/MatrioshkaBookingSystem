@@ -54,12 +54,14 @@ namespace MatrioshkaBookingSystem.Controllers
                 {
                     Value = u.UserId.ToString(),
                     Text = u.FirstName + " " + u.LastName
+                })
+                .ToList();
 
-                }).ToList();//List to show name and last name
-            
-            ViewData["UserId"] = new SelectList(_context.Users, "Value", "Text");
+            ViewData["UserId"] = new SelectList(userList, "Value", "Text");
+            ViewBag.Hotels = new SelectList(_context.Hotels, "HotelId", "HotelName");
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId");
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId");
+            ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
+
             return View();
         }
 

@@ -122,4 +122,40 @@
         </table>
     </div>
 
+    <div class="section">
+        <h2>Bookings</h2>
+
+        <p>
+            <a href="/Bookings/Create" class="add-btn">+ Add Booking</a>
+        </p>
+
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Room Type</th>
+                <th>Hotel</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+
+            @foreach (var b in Model.Bookings)
+            {
+                <tr>
+                    <td>@b.BookingId</td>
+                    <td>@(b.User?.FirstName) @(b.User?.LastName)</td>
+                    <td>@(b.Room?.Type?.TypeName) (Room #@b.RoomId)</td>
+                    <td>@(b.Room?.Floor?.Hotel?.HotelName)</td>
+                    <td>@b.DateofBooking.ToString("yyyy-MM-dd")</td>
+                    <td>@b.EndofBooking.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a href="/Bookings/Edit/@b.BookingId" class="edit-btn">Edit</a> |
+                        <a href="/Bookings/Delete/@b.BookingId" class="danger-btn">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+
 </div>
