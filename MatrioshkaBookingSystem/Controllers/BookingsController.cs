@@ -49,9 +49,17 @@ namespace MatrioshkaBookingSystem.Controllers
         // GET: Bookings/Create
         public IActionResult Create()
         {
+            var userList = _context.Users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.UserId.ToString(),
+                    Text = u.FirstName + " " + u.LastName
+
+                }).ToList();//List to show name and last name
+            
+            ViewData["UserId"] = new SelectList(_context.Users, "Value", "Text");
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId");
             ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId");
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId");
             return View();
         }
 

@@ -186,5 +186,19 @@ namespace MatrioshkaBookingSystem.Controllers
 
             return Json(floors);
         }
+        public IActionResult GetAvailableRoomsByHotel (int hotelId)
+        {
+            var availableRooms = _context.Rooms
+                .Include(r => r.Floor)
+                .Include(r => r.Type)
+                .Where(r => r.Floor.HotelId == hotelId && r.RoomStatus == "Available")
+                .Select(r => new
+                {
+                    roomId = r.RoomId,
+                    roomName = $"Room #{r.RoomId} - {r.Type.TypeName} (Floor {r.Floor.FloorNumber})"
+
+                }).ToList();
+            return Json(availableRooms);
+        }
     }
 }

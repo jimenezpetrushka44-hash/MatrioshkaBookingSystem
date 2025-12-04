@@ -6,8 +6,7 @@
 }
 
 @section Styles {
-        {{/* ASEGÚRATE DE QUE LA RUTA DEL ARCHIVO ES CORRECTA */}}
-    <link rel="stylesheet" href="~/css/booking.css" />
+    <link rel="stylesheet" href="~/css/bookings.css" />
 }
 
 <div class="booking-wrapper">
@@ -30,15 +29,24 @@
                 <div class="form-group">
                     <label asp-for="UserId" class="control-label">Usuario:</label>
                     <select asp-for="UserId" class="form-control select-styled" asp-items="ViewBag.UserId">
-                        <option disabled selected>Selecciona un Usuario</option>
+                        <option disabled selected value="">Selecciona un Usuario</option>
                     </select>
                     <span asp-validation-for="UserId" class="text-danger"></span>
                 </div>
 
+                <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
+
                 <div class="form-group">
-                    <label asp-for="RoomId" class="control-label">Habitación:</label>
-                    <select asp-for="RoomId" class="form-control select-styled" asp-items="ViewBag.RoomId">
-                        <option disabled selected>Selecciona una Habitación</option>
+                    <label for="HotelFilter" class="control-label">Filtrar por Hotel:</label>
+                    <select id="HotelFilter" name="HotelFilter" class="form-control select-styled" asp-items="ViewBag.Hotels">
+                        <option disabled selected value="">Selecciona el Hotel</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RoomId" class="control-label">Habitación (Disponible):</label>
+                    <select asp-for="RoomId" class="form-control select-styled">
+                        <option disabled selected value="">Selecciona un Hotel Primero</option>
                     </select>
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
@@ -46,20 +54,20 @@
                 <div class="form-group">
                     <label asp-for="BillingId" class="control-label">Info. Facturación:</label>
                     <select asp-for="BillingId" class="form-control select-styled" asp-items="ViewBag.BillingId">
-                        <option disabled selected>Selecciona Info. de Facturación</option>
+                        <option disabled selected value="">Selecciona Info. de Facturación</option>
                     </select>
                     <span asp-validation-for="BillingId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="DateofBooking" class="control-label">Fecha de Inicio:</label>
-                    <input asp-for="DateofBooking" class="form-control" type="date" /> {{/* 🛑 CORRECCIÓN CLAVE */}}
+                    <input asp-for="DateofBooking" class="form-control" type="date" />
                     <span asp-validation-for="DateofBooking" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="EndofBooking" class="control-label">Fecha de Fin:</label>
-                    <input asp-for="EndofBooking" class="form-control" type="date" /> {{/* 🛑 CORRECCIÓN CLAVE */}}
+                    <input asp-for="EndofBooking" class="form-control" type="date" />
                     <span asp-validation-for="EndofBooking" class="text-danger"></span>
                 </div>
 
@@ -76,4 +84,40 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.getElementById('HotelFilter').addEventListener('change', function() {
+            var hotelId = this.value;
+            var roomSelect = document.getElementById('RoomId');
+
+            // Limpiar opciones anteriores y mostrar estado de carga
+            roomSelect.innerHTML = '<option disabled selected value="">Cargando habitaciones...</option>';
+
+            if (hotelId) {
+                // Llama al nuevo endpoint que creaste en RoomsController.cs
+                fetch('/Rooms/GetAvailableRoomsByHotel?hotelId=' + hotelId)
+                    .then(response => response.json())
+                    .then(data => {
+                        roomSelect.innerHTML = '<option disabled selected value="">Selecciona una Habitación</option>';
+
+                        if (data.length === 0) {
+                            roomSelect.innerHTML = '<option disabled selected value="">No hay habitaciones disponibles en este hotel.</option>';
+                        } else {
+                            data.forEach(function(room) {
+                                var option = document.createElement('option');
+                                option.value = room.roomId;
+                                option.textContent = room.roomName;
+                                roomSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar habitaciones:', error);
+                        roomSelect.innerHTML = '<option disabled selected value="">Error al cargar (revisa la consola)</option>';
+                    });
+            } else {
+                roomSelect.innerHTML = '<option disabled selected value="">Selecciona un Hotel Primero</option>';
+            }
+        });
+    </script>
 }
