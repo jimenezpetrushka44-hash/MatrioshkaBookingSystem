@@ -1,0 +1,44 @@
+﻿@model MatrioshkaBookingSystem.Models.Roomasset
+
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
+    ViewData["Title"] = "Add Room Asset Option";
+}
+
+<div class="admin-container">
+    <h1 class="title">Add New Room Asset Option</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create" asp-controller="RoomAssets">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="AssetName" class="control-label">Asset Name:</label>
+                    <input asp-for="AssetName" class="form-control" required />
+                    <span asp-validation-for="AssetName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AssetStatus" class="control-label">Status:</label>
+                    <select asp-for="AssetStatus" class="form-control">
+                        <option value="Working">Working</option>
+                        <option value="Under Maintenance">Under Maintenance</option>
+                        <option value="Damaged">Damaged</option>
+                    </select>
+                    <span asp-validation-for="AssetStatus" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <input type="submit" value="Create Room Asset" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a asp-action="Admins" asp-controller="Admin">Back to Admin Dashboard</a>
+    </div>
+</div>

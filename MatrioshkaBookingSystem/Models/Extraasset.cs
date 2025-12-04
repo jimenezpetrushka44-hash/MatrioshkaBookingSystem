@@ -8,6 +8,7 @@ public partial class Extraasset
     public int ExtraAssetId { get; set; }
 
     public string ExtraAssetName { get; set; } = null!;
+    public decimal AssetPrice { get; set; }
 
     public string ExtraAssetStatus { get; set; } = null!;
 
