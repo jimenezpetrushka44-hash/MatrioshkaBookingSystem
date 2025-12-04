@@ -48,6 +48,16 @@
                         <option value="@t.TypeId">@t.TypeName</option>
                     }
                 </select>
+                <label>Room Assets:</label>
+                <div class="asset-checkbox-group">
+                    @foreach (var asset in ViewBag.Assets)
+                    {
+                        <div>
+                            <input type="checkbox" name="SelectedAssetIds" value="@asset.AssetId" id="asset-@asset.AssetId" />
+                            <label for="asset-@asset.AssetId">@asset.AssetName</label>
+                        </div>
+                    }
+                </div>
 
                 <!-- STATUS -->
                 <label>Status:</label>

@@ -52,22 +52,40 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(f => f.Hotel)
                 .ToList();
             ViewBag.RoomTypes = _context.Roomtypes.ToList();
+            ViewBag.Assets = _context.Roomassets.ToList();
 
             return View();
         }
 
         // POST: Rooms/Create
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoomId,FloorId,TypeId,RoomStatus")] Room room)
+        public async Task<IActionResult> Create(
+            [Bind("RoomId,FloorId,TypeId,RoomStatus")] Room room,
+            int[] SelectedAssetIds) 
         {
             ViewData["BodyClass"] = "admin-page";
+
+            if (SelectedAssetIds != null && SelectedAssetIds.Length > 0)
+            {
+                room.Assets ??= new List<Roomasset>();
+
+                var selectedAssets = await _context.Roomassets
+                    .Where(a => SelectedAssetIds.Contains(a.AssetId))
+                    .ToListAsync();
+
+                foreach (var asset in selectedAssets)
+                {
+                    room.Assets.Add(asset);
+                }
+            }
 
             if (ModelState.IsValid)
             {
                 _context.Add(room);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Admins", "Admin"); 
             }
 
             ViewBag.Hotels = _context.Hotels.ToList();
@@ -75,10 +93,10 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(f => f.Hotel)
                 .ToList();
             ViewBag.RoomTypes = _context.Roomtypes.ToList();
+            ViewBag.Assets = _context.Roomassets.ToList(); 
 
             return View(room);
         }
-
         // GET: Rooms/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
