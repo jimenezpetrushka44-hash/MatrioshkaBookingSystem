@@ -1,0 +1,49 @@
+﻿@model MatrioshkaBookingSystem.Models.Extraasset
+
+@{
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
+    ViewData["Title"] = "Add Extra Asset";
+}
+
+<div class="admin-container">
+    <h1 class="title">Add Extra Asset (Servicio Cobrable)</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create" asp-controller="ExtraAssets">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="ExtraAssetName" class="control-label">Asset Name:</label>
+                    <input asp-for="ExtraAssetName" class="form-control" required />
+                    <span asp-validation-for="ExtraAssetName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AssetPrice" class="control-label">Price ($):</label>
+                    <input asp-for="AssetPrice" type="number" step="0.01" class="form-control" required />
+                    <span asp-validation-for="AssetPrice" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ExtraAssetStatus" class="control-label">Status:</label>
+                    <select asp-for="ExtraAssetStatus" class="form-control">
+                        <option value="Available">Available</option>
+                        <option value="Unavailable">Unavailable</option>
+                    </select>
+                    <span asp-validation-for="ExtraAssetStatus" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <input type="submit" value="Create Extra Asset" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a asp-action="Admins" asp-controller="Admin">Back to Admin Dashboard</a>
+    </div>
+</div>

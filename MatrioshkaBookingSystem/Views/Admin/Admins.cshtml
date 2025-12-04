@@ -94,6 +94,32 @@
         </table>
     </div>
     <div class="section">
+        <h2>Extra Assets (Cobrables a Cliente)</h2>
+
+        <p>
+            <a href="/ExtraAssets/Create" class="add-btn">+ Add Extra Asset Option</a>
+        </p>
+
+        <table class="table">
+            <tr>
+                <th>Asset ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Status</th>
+            </tr>
+
+            @foreach (var a in Model.ExtraAssets)
+            {
+                <tr>
+                    <td>@a.ExtraAssetId</td>
+                    <td>@a.ExtraAssetName</td>
+                    <td>@a.AssetPrice.ToString("C")</td>
+                    <td>@a.ExtraAssetStatus</td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="section">
         <h2>Floors</h2>
 
         <p>

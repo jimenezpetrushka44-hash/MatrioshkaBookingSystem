@@ -9,5 +9,6 @@
 
         public List<Booking> Bookings { get; set; } 
         public List<Roomasset> RoomAssets { get; set; }
+        public List<Extraasset> ExtraAssets { get; set; }
     }
 }

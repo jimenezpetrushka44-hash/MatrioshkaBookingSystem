@@ -33,6 +33,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(b => b.Room)
                 .ThenInclude(r => r.Type).ToList();
             var roomAssets = _context.Roomassets.ToList();
+            var extraAssets = _context.Extraassets.ToList();
 
             var model = new AdminViewModel
             {
@@ -41,7 +42,8 @@ namespace MatrioshkaBookingSystem.Controllers
                 Floors = floors,
                 Rooms = rooms,
                 Bookings = bookings,
-                RoomAssets = roomAssets
+                RoomAssets = roomAssets,
+                ExtraAssets = extraAssets
 
             };
 
