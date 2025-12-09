@@ -1,7 +1,7 @@
 ﻿@model MatrioshkaBookingSystem.Models.Booking
 
 @{
-    ViewData["Title"] = "Crear Reserva";
+    ViewData["Title"] = "Create Booking";
     ViewData["BodyClass"] = "admin-page booking-create-page";
 }
 
@@ -15,21 +15,21 @@
         <h1 class="big-title">Crear una</h1>
         <h1 class="accent-title">Reserva</h1>
         <p class="form-note">
-            Completa los detalles de la reserva para asignar una habitación a un usuario.
+            Please fill what is asked.
         </p>
     </div>
 
     <div class="form-section">
         <div class="form-card">
-            <h2 class="form-title">Detalles de la Reserva</h2>
+            <h2 class="form-title">Booking Details</h2>
 
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-group">
-                    <label asp-for="UserId" class="control-label">Usuario:</label>
+                    <label asp-for="UserId" class="control-label">User:</label>
                     <select asp-for="UserId" class="form-control select-styled" asp-items="ViewBag.UserId">
-                        <option disabled selected value="">Selecciona un Usuario</option>
+                        <option disabled selected value="">Select an User</option>
                     </select>
                     <span asp-validation-for="UserId" class="text-danger"></span>
                 </div>
@@ -37,43 +37,68 @@
                 <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
 
                 <div class="form-group">
-                    <label for="HotelFilter" class="control-label">Filtrar por Hotel:</label>
+                    <label for="HotelFilter" class="control-label">Hotels:</label>
                     <select id="HotelFilter" name="HotelFilter" class="form-control select-styled" asp-items="ViewBag.Hotels">
-                        <option disabled selected value="">Selecciona el Hotel</option>
+                        <option disabled selected value="">Select a Hotel</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="RoomId" class="control-label">Habitación (Disponible):</label>
+                    <label asp-for="RoomId" class="control-label">Rooms (Available):</label>
                     <select asp-for="RoomId" class="form-control select-styled">
-                        <option disabled selected value="">Selecciona un Hotel Primero</option>
+                        <option disabled selected value="">Please select a Hotel first</option>
                     </select>
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="BillingId" class="control-label">Info. Facturación:</label>
+                    <label asp-for="BillingId" class="control-label">Billing:</label>
                     <select asp-for="BillingId" class="form-control select-styled" asp-items="ViewBag.BillingId">
-                        <option disabled selected value="">Selecciona Info. de Facturación</option>
+                        <option disabled selected value="">Select Booking Info</option>
                     </select>
                     <span asp-validation-for="BillingId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="DateofBooking" class="control-label">Fecha de Inicio:</label>
+                    <label asp-for="DateofBooking" class="control-label">Start date:</label>
                     <input asp-for="DateofBooking" class="form-control" type="date" />
                     <span asp-validation-for="DateofBooking" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="EndofBooking" class="control-label">Fecha de Fin:</label>
+                    <label asp-for="EndofBooking" class="control-label">End date:</label>
                     <input asp-for="EndofBooking" class="form-control" type="date" />
                     <span asp-validation-for="EndofBooking" class="text-danger"></span>
                 </div>
+                @if (ViewBag.ExtraAssets != null && ViewBag.ExtraAssets.Count > 0)
+                {
+                    <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
+
+                    <h2 class="form-title">Extra Assets</h2>
+                    <p class="form-note" style="margin-bottom: 20px;">
+                        Select Extra Assets.
+                    </p>
+
+                    <div class="extra-asset-checkbox-group">
+                        @foreach (var asset in ViewBag.ExtraAssets)
+                        {
+                            <div class="asset-item">
+                                <input type="checkbox"
+                                       name="SelectedExtraAssets"
+                                       value="@asset.ExtraAssetId"
+                                       id="extra_asset_@asset.ExtraAssetId" />
+                                <label for="extra_asset_@asset.ExtraAssetId">
+                                    @asset.ExtraAssetName
+                                    (<span class="asset-price">@asset.AssetPrice.ToString("C")</span>)
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
 
                 <div class="form-group submit-group">
-                    <button type="submit" value="Create" class="btn btn-primary create-btn">Crear Reserva</button>
-                    <a asp-action="Index" class="btn btn-secondary back-btn">Volver a la Lista</a>
+                    <button type="submit" value="Create" class="btn btn-primary create-btn">Crete Booking</button>
+                    <a asp-action="Index" class="btn btn-secondary back-btn">Go back</a>
                 </div>
             </form>
         </div>

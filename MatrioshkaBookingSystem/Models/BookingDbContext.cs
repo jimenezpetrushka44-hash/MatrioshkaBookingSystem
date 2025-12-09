@@ -62,7 +62,7 @@ public partial class BookingDbContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Billinginfos)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("billinginfo_ibfk_1");
         });
 
@@ -89,7 +89,9 @@ public partial class BookingDbContext : DbContext
 
             entity.HasOne(d => d.Room).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.RoomId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("bookings_ibfk_2");
+            
 
             entity.HasOne(d => d.User).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.UserId)
@@ -112,12 +114,12 @@ public partial class BookingDbContext : DbContext
 
             entity.HasOne(d => d.Booking).WithMany(p => p.Bookingextraassets)
                 .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("bookingextraassets_ibfk_1");
 
             entity.HasOne(d => d.ExtraAsset).WithMany(p => p.Bookingextraassets)
                 .HasForeignKey(d => d.ExtraAssetId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("bookingextraassets_ibfk_2");
         });
 
@@ -150,7 +152,7 @@ public partial class BookingDbContext : DbContext
 
             entity.HasOne(d => d.Hotel).WithMany(p => p.Floors)
                 .HasForeignKey(d => d.HotelId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("floors_ibfk_1");
         });
 
@@ -197,12 +199,12 @@ public partial class BookingDbContext : DbContext
 
             entity.HasOne(d => d.Floor).WithMany(p => p.Rooms)
                 .HasForeignKey(d => d.FloorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("rooms_ibfk_1");
 
             entity.HasOne(d => d.Type).WithMany(p => p.Rooms)
                 .HasForeignKey(d => d.TypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("rooms_ibfk_2");
 
             entity.HasMany(d => d.Assets).WithMany(p => p.Rooms)
@@ -210,11 +212,11 @@ public partial class BookingDbContext : DbContext
                     "Assetsinroom",
                     r => r.HasOne<Roomasset>().WithMany()
                         .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("assetsinrooms_ibfk_2"),
                     l => l.HasOne<Room>().WithMany()
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("assetsinrooms_ibfk_1"),
                     j =>
                     {
@@ -273,11 +275,11 @@ public partial class BookingDbContext : DbContext
                     "UserRole",
                     r => r.HasOne<Role>().WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("user_roles_ibfk_2"),
                     l => l.HasOne<User>().WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("user_roles_ibfk_1"),
                     j =>
                     {

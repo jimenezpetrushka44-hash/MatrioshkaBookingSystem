@@ -125,3 +125,42 @@ input, select {
     .back-btn:hover {
         background-color: #e2e6ea;
     }
+/* Estilos para agrupar los Assets Extra en el formulario de reserva */
+.extra-asset-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 30px; /* Espacio entre los items */
+    margin-top: 15px;
+    padding: 15px; /* Aumentamos el padding para mejor visualización */
+    border: 1px solid #b7d7ee; /* Usamos el color de borde existente */
+    border-radius: 12px; /* Usamos el radio de borde existente */
+    background-color: #F6FAFF; /* Usamos el color de fondo de input */
+}
+
+.asset-item {
+    display: flex;
+    align-items: center;
+}
+
+    .asset-item input[type="checkbox"] {
+       
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        margin-right: 8px;
+        border-radius: 4px;
+    }
+
+    .asset-item label {
+        margin-top: 0; 
+        cursor: pointer;
+        font-weight: normal;
+        color: #0B0E1D; 
+
+    }
+
+.asset-price {
+    font-weight: bold;
+    color: #81C5EE; 
+    margin-left: 5px;
+}

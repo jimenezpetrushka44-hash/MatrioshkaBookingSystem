@@ -61,8 +61,10 @@ namespace MatrioshkaBookingSystem.Controllers
             ViewBag.Hotels = new SelectList(_context.Hotels, "HotelId", "HotelName");
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId");
             ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
+            ViewBag.ExtraAssets = _context.Extraassets
+                .Where(ea => ea.ExtraAssetStatus == "Available").ToList();
 
-            return View();
+            return View(new Booking());
         }
 
         // POST: Bookings/Create
@@ -70,13 +72,32 @@ namespace MatrioshkaBookingSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,UserId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking)
+        public async Task<IActionResult> Create([Bind("BookingId,UserId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking, int[] SelectedExtraAssets)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                if(SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
+                {
+                    var assets = _context.Extraassets
+                        .Where(ea => SelectedExtraAssets.Contains(ea.ExtraAssetId)).ToList();
+
+                    foreach (var asset in assets)
+                    {
+                        var bookingExtraAsset = new Bookingextraasset
+                        {
+                            BookingId = booking.BookingId,
+                            ExtraAssetId = asset.ExtraAssetId,
+                            ExtraAssetPrice = asset.AssetPrice
+
+                        };
+                        _context.Bookingextraassets.Add(bookingExtraAsset);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction("Admins","Admin");
             }
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId", booking.BillingId);
             ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId", booking.RoomId);
