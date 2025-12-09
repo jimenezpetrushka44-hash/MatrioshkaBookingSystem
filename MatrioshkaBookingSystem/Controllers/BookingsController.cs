@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MatrioshkaBookingSystem.Models;
+using System.Security.Claims;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
@@ -18,14 +19,12 @@ namespace MatrioshkaBookingSystem.Controllers
             _context = context;
         }
 
-        // GET: Bookings
         public async Task<IActionResult> Index()
         {
             var bookingDbContext = _context.Bookings.Include(b => b.Billing).Include(b => b.Room).Include(b => b.User);
             return View(await bookingDbContext.ToListAsync());
         }
 
-        // GET: Bookings/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,18 +45,19 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        // GET: Bookings/Create
+        private IActionResult ReturnViewWithViewData(Booking booking)
+        {
+            ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId", booking.BillingId);
+            ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId", booking.RoomId);
+            ViewBag.Hotels = new SelectList(_context.Hotels.ToList(), "HotelId", "HotelName");
+            ViewBag.ExtraAssets = _context.Extraassets
+                 .Where(ea => ea.ExtraAssetStatus == "Available").ToList();
+
+            return View(booking);
+        }
+
         public IActionResult Create()
         {
-            var userList = _context.Users
-                .Select(u => new SelectListItem
-                {
-                    Value = u.UserId.ToString(),
-                    Text = u.FirstName + " " + u.LastName
-                })
-                .ToList();
-
-            ViewData["UserId"] = new SelectList(userList, "Value", "Text");
             ViewBag.Hotels = new SelectList(_context.Hotels, "HotelId", "HotelName");
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId");
             ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
@@ -67,19 +67,34 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(new Booking());
         }
 
-        // POST: Bookings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,UserId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking, int[] SelectedExtraAssets)
+        public async Task<IActionResult> Create([Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking, int[] SelectedExtraAssets)
         {
+            var userName = User.FindFirstValue(ClaimTypes.Name);
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                ModelState.AddModelError(string.Empty, "Oh-Uh: User not identified!");
+                return ReturnViewWithViewData(booking);
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Oh-Uh: User not identified!");
+                return ReturnViewWithViewData(booking);
+            }
+
+            booking.UserId = user.UserId;
+
             if (ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
 
-                if(SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
+                if (SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
                 {
                     var assets = _context.Extraassets
                         .Where(ea => SelectedExtraAssets.Contains(ea.ExtraAssetId)).ToList();
@@ -97,15 +112,12 @@ namespace MatrioshkaBookingSystem.Controllers
                     }
                     await _context.SaveChangesAsync();
                 }
-                return RedirectToAction("Admins","Admin");
+                return RedirectToAction("Admins", "Admin");
             }
-            ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId", booking.BillingId);
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId", booking.RoomId);
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", booking.UserId);
-            return View(booking);
+
+            return ReturnViewWithViewData(booking);
         }
 
-        // GET: Bookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -124,16 +136,21 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        // POST: Bookings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,UserId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking)
         {
             if (id != booking.BookingId)
             {
                 return NotFound();
+            }
+
+            var userName = User.FindFirstValue(ClaimTypes.Name);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+
+            if (user != null)
+            {
+                booking.UserId = user.UserId;
             }
 
             if (ModelState.IsValid)
@@ -154,7 +171,7 @@ namespace MatrioshkaBookingSystem.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Admins", "Admin");
             }
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId", booking.BillingId);
             ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomId", booking.RoomId);
@@ -162,7 +179,6 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        // GET: Bookings/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -183,7 +199,6 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        // POST: Bookings/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

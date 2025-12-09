@@ -3,6 +3,13 @@ using MatrioshkaBookingSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using MatrioshkaBookingSystem.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
@@ -28,11 +35,12 @@ namespace MatrioshkaBookingSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
             var user = _context.Users
                 .Include(u => u.Roles)
                 .FirstOrDefault(u => u.Username == username && u.UserPassword == password);
+
             if (user == null)
             {
                 ViewBag.Error = "Wrong username or password!";
@@ -47,6 +55,20 @@ namespace MatrioshkaBookingSystem.Controllers
                 return View("Index");
             }
 
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Role, userRoleName)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme); // Usando la referencia simplificada
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme, // Usando la referencia simplificada
+                new ClaimsPrincipal(claimsIdentity));
+
             if (userRoleName == "Admin")
                 return RedirectToAction("Admins", "Admin");
 
@@ -57,7 +79,13 @@ namespace MatrioshkaBookingSystem.Controllers
             return View("Index");
         }
 
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme); // Usando la referencia simplificada
 
+            return RedirectToAction("Index", "Home");
+        }
 
         public IActionResult Admins()
         {
@@ -66,12 +94,12 @@ namespace MatrioshkaBookingSystem.Controllers
                 Users = _context.Users.ToList(),
                 Hotels = _context.Hotels.ToList(),
                 Floors = _context.Floors
-            .Include(f => f.Hotel)
-            .ToList(),
+                .Include(f => f.Hotel)
+                .ToList(),
                 Rooms = _context.Rooms
-            .Include(r => r.Floor)
-            .Include(r => r.Type)
-            .ToList()
+                .Include(r => r.Floor)
+                .Include(r => r.Type)
+                .ToList()
             };
 
             return View(vm);
@@ -91,7 +119,7 @@ namespace MatrioshkaBookingSystem.Controllers
 
         [HttpPost]
         public IActionResult Register(string firstName, string lastName, string email, string phone,
-                              string username, string password, string role)
+                                     string username, string password, string role)
         {
             User newUser = new User
             {
@@ -117,9 +145,5 @@ namespace MatrioshkaBookingSystem.Controllers
 
             return RedirectToAction("Index");
         }
-
-  
-        }
-
     }
-
+}

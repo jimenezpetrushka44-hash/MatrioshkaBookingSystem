@@ -1,6 +1,5 @@
 ﻿@{
     Layout = "_Layout";
-
 }
 
 @section Styles {
@@ -20,6 +19,14 @@
 
             <div class="login-box">
                 <h2>Welcome User! :)</h2>
+
+                @* Bloque de código para mostrar el error de ViewBag *@
+                @if (ViewBag.Error != null)
+                {
+                    <div class="error-message">
+                        @ViewBag.Error
+                    </div>
+                }
 
                 <form method="post" asp-action="Login" asp-controller="Home">
 

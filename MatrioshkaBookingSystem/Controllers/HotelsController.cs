@@ -170,12 +170,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 await _context.SaveChangesAsync();
 
             }
-            _context.Database.ExecuteSqlRaw(@"
-        SET @count = 0;
-        UPDATE Hotels SET HotelId = @count:=@count+1;
-    ");
-
-            _context.Database.ExecuteSqlRaw("ALTER TABLE Hotels AUTO_INCREMENT = 1;");
+           
             return RedirectToAction("Admins","Admin");
 
         }

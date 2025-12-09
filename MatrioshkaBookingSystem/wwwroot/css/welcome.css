@@ -104,3 +104,14 @@
         text-decoration: underline;
         color: #12263c;
     }
+
+.error-message {
+    color: #FF4B33;
+    background-color: #ffeaea;
+    border: 1px solid #ffaaaa;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
