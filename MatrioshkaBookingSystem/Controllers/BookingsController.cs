@@ -89,6 +89,26 @@ namespace MatrioshkaBookingSystem.Controllers
 
             booking.UserId = user.UserId;
 
+            var conflict = await _context.Bookings
+                .Where(b => b.RoomId == booking.RoomId)
+                .Where(b => booking.DateofBooking < b.EndofBooking && booking.EndofBooking > b.DateofBooking)
+                .AnyAsync();
+
+            if(conflict)
+            {
+                ModelState.AddModelError(string.Empty, "This room is already taken!, Pick another one.");
+                return ReturnViewWithViewData(booking);
+
+            }
+
+            if (booking.Billing != null)
+            {
+                booking.Billing.UserId = user.UserId;
+                _context.Billinginfos.Add(booking.Billing);
+
+                await _context.SaveChangesAsync();
+                booking.BillingId = booking.Billing.BillingId; 
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(booking);

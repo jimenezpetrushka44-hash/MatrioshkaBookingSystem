@@ -44,12 +44,38 @@
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
 
+                <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
+
+                <h2 class="form-title">Billing Information</h2>
+
                 <div class="form-group">
-                    <label asp-for="BillingId" class="control-label">Billing:</label>
-                    <select asp-for="BillingId" class="form-control select-styled" asp-items="ViewBag.BillingId">
-                        <option disabled selected value="">Select Booking Info</option>
-                    </select>
-                    <span asp-validation-for="BillingId" class="text-danger"></span>
+                    <label asp-for="Billing.FullName" class="control-label">Full Name on Card:</label>
+                    <input asp-for="Billing.FullName" class="form-control" required />
+                    <span asp-validation-for="Billing.FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Billing.Email" class="control-label">Email:</label>
+                    <input asp-for="Billing.Email" type="email" class="form-control" required />
+                    <span asp-validation-for="Billing.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Billing.BillingAddress" class="control-label">Billing Address:</label>
+                    <input asp-for="Billing.BillingAddress" class="form-control" required />
+                    <span asp-validation-for="Billing.BillingAddress" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Billing.CardNumber" class="control-label">Card Number:</label>
+                    <input asp-for="Billing.CardNumber" class="form-control" required />
+                    <span asp-validation-for="Billing.CardNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Billing.ExpirationDate" class="control-label">Expiration (MM/YY):</label>
+                    <input asp-for="Billing.ExpirationDate" class="form-control" placeholder="MM/YY" required />
+                    <span asp-validation-for="Billing.ExpirationDate" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
@@ -108,11 +134,9 @@
             var hotelId = this.value;
             var roomSelect = document.getElementById('RoomId');
 
-            // Limpiar opciones anteriores y mostrar estado de carga
             roomSelect.innerHTML = '<option disabled selected value="">Cargando habitaciones...</option>';
 
             if (hotelId) {
-                // Llama al nuevo endpoint que creaste en RoomsController.cs
                 fetch('/Rooms/GetAvailableRoomsByHotel?hotelId=' + hotelId)
                     .then(response => response.json())
                     .then(data => {
