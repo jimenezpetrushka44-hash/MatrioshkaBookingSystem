@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MatrioshkaBookingSystem.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 
 namespace MatrioshkaBookingSystem.Controllers
 {
-    [Authorize(Roles = "Admin")] // For security purposes
+    [Authorize(Roles = "Admin")]
     public class HotelsController : Controller
     {
         private readonly BookingDbContext _context;
@@ -23,13 +26,11 @@ namespace MatrioshkaBookingSystem.Controllers
             _env = env;
         }
 
-        // GET: Hotels
         public async Task<IActionResult> Index()
         {
             return View(await _context.Hotels.ToListAsync());
         }
 
-        // GET: Hotels/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,23 +48,18 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
-        // GET: Hotels/Create
         public IActionResult Create()
         {
             ViewData["BodyClass"] = "admin-page";
             return View();
         }
 
-        // POST: Hotels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("HotelId,HotelName,HotelLocation,HotelStatus")] Hotel hotel, IFormFile HotelImage)
         {
             if (ModelState.IsValid)
             {
-                // Adding Image file handling:
                 if (HotelImage != null && HotelImage.Length > 0)
                 {
                     string folderPath = Path.Combine(_env.WebRootPath, "img", "Hotels");
@@ -87,12 +83,8 @@ namespace MatrioshkaBookingSystem.Controllers
                 return RedirectToAction("Admins", "Admin");
             }
             return View(hotel);
-
-
-
         }
 
-        // GET: Hotels/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -108,42 +100,66 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
-        // POST: Hotels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("HotelId,HotelName,HotelLocation,HotelStatus")] Hotel hotel)
+        public async Task<IActionResult> Edit(int id, IFormFile ImageFile)
         {
-            if (id != hotel.HotelId)
+            var hotelToUpdate = await _context.Hotels
+                .FirstOrDefaultAsync(h => h.HotelId == id);
+
+            if (hotelToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<Hotel>(
+                hotelToUpdate,
+                "",
+                h => h.HotelName, h => h.HotelLocation, h => h.HotelStatus, h => h.ImagePath))
             {
-                try
+                if (ImageFile != null && ImageFile.Length > 0)
                 {
-                    _context.Update(hotel);
-                    await _context.SaveChangesAsync();
+                    string folderPath = Path.Combine(_env.WebRootPath, "img", "Hotels");
+
+                    if (!Directory.Exists(folderPath))
+                        Directory.CreateDirectory(folderPath);
+
+                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                    string filepath = Path.Combine(folderPath, filename);
+
+                    using (var stream = new FileStream(filepath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+
+                    hotelToUpdate.ImagePath = "/img/Hotels/" + filename;
                 }
-                catch (DbUpdateConcurrencyException)
+
+                if (ModelState.IsValid)
                 {
-                    if (!HotelExists(hotel.HotelId))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(hotelToUpdate);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!HotelExists(hotelToUpdate.HotelId))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(hotel);
+
+            return View(hotelToUpdate);
         }
 
-        // GET: Hotels/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -161,7 +177,6 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
-        // POST: Hotels/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -171,13 +186,10 @@ namespace MatrioshkaBookingSystem.Controllers
             {
                 _context.Hotels.Remove(hotel);
                 await _context.SaveChangesAsync();
-
             }
-           
-            return RedirectToAction("Admins","Admin");
 
+            return RedirectToAction("Admins", "Admin");
         }
-
 
         private bool HotelExists(int id)
         {
