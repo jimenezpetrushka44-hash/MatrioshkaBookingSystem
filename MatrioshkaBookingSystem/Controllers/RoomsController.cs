@@ -202,6 +202,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 _context.Rooms.Remove(room);
 
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Admins", "Admin");
         }
 
