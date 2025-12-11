@@ -56,15 +56,41 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(int? hotelId)
         {
-            ViewBag.Hotels = new SelectList(_context.Hotels, "HotelId", "HotelName");
+            var hotel = _context.Hotels.Find(hotelId);
+
+            if (hotel == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.SelectedHotelName = hotel.HotelName;
+            ViewBag.SelectedHotelId = hotelId;
             ViewData["BillingId"] = new SelectList(_context.Billinginfos, "BillingId", "BillingId");
-            ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
             ViewBag.ExtraAssets = _context.Extraassets
                 .Where(ea => ea.ExtraAssetStatus == "Available").ToList();
 
-            return View(new Booking());
+            var availableRooms = _context.Rooms
+                .Include(r => r.Type)
+                .Include(r => r.Floor)
+                .Where(r => r.Floor.HotelId == hotelId && r.RoomStatus == "Available")
+                .ToList();
+
+            if (availableRooms.Any())
+            {
+                ViewData["RoomId"] = new SelectList(availableRooms.Select(r => new
+                {
+                    RoomId = r.RoomId,
+                    RoomDisplay = $"Room: {r.RoomId} {r.Type.TypeName} - $ {r.Type.TypePrice:F2}"
+                }), "RoomId", "RoomDisplay");
+
+            }else
+            {
+                ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
+            }
+
+                return View(new Booking());
         }
 
         public async Task<IActionResult> Invoice(int? id)
