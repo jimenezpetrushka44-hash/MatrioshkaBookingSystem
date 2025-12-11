@@ -1,0 +1,39 @@
+﻿@model MatrioshkaBookingSystem.Models.Floor
+
+@{
+    ViewData["Title"] = "Edit Floor";
+    ViewData["BodyClass"] = "admin-page";
+}
+
+<h1>Edit Floor</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" asp-route-id="@Model.FloorId" method="post">
+
+            <input type="hidden" asp-for="FloorId" />
+
+            <div class="form-group">
+                <label asp-for="FloorStatus" class="control-label"></label>
+                <select asp-for="FloorStatus" class="form-control">
+                    <option value="Available">Available</option>
+                    <option value="Non-Available">Non-Available</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="HotelId" class="control-label">Hotel</label>
+                <select asp-for="HotelId" class="form-control" asp-items="@(new SelectList(ViewBag.Hotels, "HotelId", "HotelName"))"></select>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Admins" asp-action="Admins">Back to Dashboard</a>
+</div>

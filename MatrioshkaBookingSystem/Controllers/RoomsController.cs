@@ -1,11 +1,10 @@
 ﻿using MatrioshkaBookingSystem.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
-
     public class RoomsController : Controller
     {
         private readonly BookingDbContext _context;
@@ -15,7 +14,6 @@ namespace MatrioshkaBookingSystem.Controllers
             _context = context;
         }
 
-        // GET: Rooms
         public async Task<IActionResult> Index()
         {
             ViewData["BodyClass"] = "admin-page";
@@ -24,10 +22,10 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(r => r.Floor)
                 .Include(r => r.Type)
                 .Include(r => r.Assets);
+
             return View(await rooms.ToListAsync());
         }
 
-        // GET: Rooms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -36,6 +34,7 @@ namespace MatrioshkaBookingSystem.Controllers
             var room = await _context.Rooms
                 .Include(r => r.Floor)
                 .Include(r => r.Type)
+                .Include(r => r.Assets)
                 .FirstOrDefaultAsync(m => m.RoomId == id);
 
             if (room == null)
@@ -44,125 +43,141 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(room);
         }
 
-        // GET: Rooms/Create
         public IActionResult Create()
         {
             ViewData["BodyClass"] = "admin-page";
 
-            ViewBag.Hotels = _context.Hotels.ToList();
-            ViewBag.Floors = _context.Floors
-                .Include(f => f.Hotel)
-                .ToList();
-            ViewBag.RoomTypes = _context.Roomtypes.ToList();
+            ViewBag.Floors = new SelectList(
+                _context.Floors.Include(f => f.Hotel).ToList(),
+                "FloorId",
+                "FloorNumber"
+            );
+
+            ViewBag.RoomTypes = new SelectList(
+                _context.Roomtypes.ToList(),
+                "TypeId",
+                "TypeName"
+            );
+
             ViewBag.Assets = _context.Roomassets.ToList();
 
             return View();
         }
 
-        // POST: Rooms/Create
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("RoomId,FloorId,TypeId,RoomStatus")] Room room,
-            int[] SelectedAssetIds) 
+        public async Task<IActionResult> Create([Bind("RoomId,FloorId,TypeId,RoomStatus")] Room room, int[] SelectedAssetIds)
         {
             ViewData["BodyClass"] = "admin-page";
 
             if (SelectedAssetIds != null && SelectedAssetIds.Length > 0)
             {
-                room.Assets ??= new List<Roomasset>();
-
+                room.Assets = new List<Roomasset>();
                 var selectedAssets = await _context.Roomassets
                     .Where(a => SelectedAssetIds.Contains(a.AssetId))
                     .ToListAsync();
 
                 foreach (var asset in selectedAssets)
-                {
                     room.Assets.Add(asset);
-                }
             }
 
             if (ModelState.IsValid)
             {
                 _context.Add(room);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Admins", "Admin"); 
+                return RedirectToAction("Admins", "Admin");
             }
 
-            ViewBag.Hotels = _context.Hotels.ToList();
-            ViewBag.Floors = _context.Floors
-                .Include(f => f.Hotel)
-                .ToList();
-            ViewBag.RoomTypes = _context.Roomtypes.ToList();
-            ViewBag.Assets = _context.Roomassets.ToList(); 
+            ViewBag.Floors = new SelectList(
+                _context.Floors.Include(f => f.Hotel).ToList(),
+                "FloorId",
+                "FloorNumber",
+                room.FloorId
+            );
+
+            ViewBag.RoomTypes = new SelectList(
+                _context.Roomtypes.ToList(),
+                "TypeId",
+                "TypeName",
+                room.TypeId
+            );
+
+            ViewBag.Assets = _context.Roomassets.ToList();
 
             return View(room);
         }
-        // GET: Rooms/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
-            ViewData["BodyClass"] = "admin-page";
-
             if (id == null)
                 return NotFound();
 
-            var room = await _context.Rooms.FindAsync(id);
+            var room = await _context.Rooms
+                .Include(r => r.Assets)
+                .FirstOrDefaultAsync(r => r.RoomId == id);
+
             if (room == null)
-                return NotFound();
-
-            ViewBag.Floors = _context.Floors
-                .Include(f => f.Hotel)
-                .ToList();
-            ViewBag.RoomTypes = _context.Roomtypes.ToList();
-
-            return View(room);
-        }
-
-        // POST: Rooms/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RoomId,FloorId,TypeId,RoomStatus")] Room room)
-        {
-            if (id != room.RoomId)
                 return NotFound();
 
             ViewData["BodyClass"] = "admin-page";
 
+            ViewBag.Floors = new SelectList(
+                _context.Floors.Include(f => f.Hotel).ToList(),
+                "FloorId",
+                "FloorNumber",
+                room.FloorId
+            );
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(room);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoomExists(room.RoomId))
-                        return NotFound();
-                    else
-                        throw;
-                }
+            ViewBag.RoomTypes = new SelectList(
+                _context.Roomtypes.ToList(),
+                "TypeId",
+                "TypeName",
+                room.TypeId
+            );
 
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewBag.Floors = _context.Floors
-                .Include(f => f.Hotel)
-                .ToList();
-            ViewBag.RoomTypes = _context.Roomtypes.ToList();
+            ViewBag.Assets = _context.Roomassets.ToList();
 
             return View(room);
         }
 
-        // GET: Rooms/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("RoomId,FloorId,TypeId,RoomStatus")] Room updatedRoom, int[] SelectedAssetIds)
+        {
+            if (id != updatedRoom.RoomId)
+                return NotFound();
+
+            var room = await _context.Rooms
+                .Include(r => r.Assets)
+                .FirstOrDefaultAsync(r => r.RoomId == id);
+
+            if (room == null)
+                return NotFound();
+
+            room.FloorId = updatedRoom.FloorId;
+            room.TypeId = updatedRoom.TypeId;
+            room.RoomStatus = updatedRoom.RoomStatus;
+
+            room.Assets.Clear();
+
+            if (SelectedAssetIds != null && SelectedAssetIds.Length > 0)
+            {
+                var selectedAssets = await _context.Roomassets
+                    .Where(a => SelectedAssetIds.Contains(a.AssetId))
+                    .ToListAsync();
+
+                foreach (var asset in selectedAssets)
+                    room.Assets.Add(asset);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Admins", "Admin");
+        }
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
                 return NotFound();
-            ViewData["BodyClass"] = "admin-page";
-
 
             var room = await _context.Rooms
                 .Include(r => r.Floor)
@@ -172,20 +187,22 @@ namespace MatrioshkaBookingSystem.Controllers
             if (room == null)
                 return NotFound();
 
+            ViewData["BodyClass"] = "admin-page";
+
             return View(room);
         }
 
-        // POST: Rooms/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
+
             if (room != null)
                 _context.Rooms.Remove(room);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Admins", "Admin");
         }
 
         private bool RoomExists(int id)
@@ -206,7 +223,8 @@ namespace MatrioshkaBookingSystem.Controllers
 
             return Json(floors);
         }
-        public IActionResult GetAvailableRoomsByHotel (int hotelId)
+
+        public IActionResult GetAvailableRoomsByHotel(int hotelId)
         {
             var availableRooms = _context.Rooms
                 .Include(r => r.Floor)
@@ -216,8 +234,9 @@ namespace MatrioshkaBookingSystem.Controllers
                 {
                     roomId = r.RoomId,
                     roomName = $"Room #{r.RoomId} - {r.Type.TypeName} (Floor {r.Floor.FloorNumber})"
+                })
+                .ToList();
 
-                }).ToList();
             return Json(availableRooms);
         }
     }
