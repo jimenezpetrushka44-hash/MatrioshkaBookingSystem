@@ -82,8 +82,9 @@
                 <td>Room: @Model.Room.RoomId</td>
                 <td>@Model.NumberOfNights</td>
                 <td style="text-align: right;">@Model.RoomPrice.ToString("C")</td>
-                <td style="text-align: right;">@Model.RoomPrice* Model.NumberOfNights.ToString("C")</td>
+                <td style="text-align: right;">@((Model.RoomPrice * Model.NumberOfNights).ToString("C"))</td>
             </tr>
+
 
 
             @foreach (var assetBooking in Model.Booking.Bookingextraassets)
