@@ -1,56 +1,110 @@
 ﻿@model MatrioshkaBookingSystem.Models.Room
-
 @{
-    ViewData["Title"] = "Edit Room";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "admin-page";
 }
 
-<h1>Edit Room</h1>
-<hr />
+<div class="form-card">
+    <h2>Edit Room</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="RoomId" />
+    <form method="post">
+        @Html.HiddenFor(m => m.RoomId)
 
-    <div class="form-group">
-        <label>Floor</label>
-        <select asp-for="FloorId" class="form-control" asp-items="ViewBag.Floors"></select>
-    </div>
-
-    <div class="form-group">
-        <label>Room Type</label>
-        <select asp-for="TypeId" class="form-control" asp-items="ViewBag.RoomTypes"></select>
-    </div>
-
-    <div class="form-group">
-        <label>Status</label>
-        <select asp-for="RoomStatus" class="form-control">
-            <option value="Available">Available</option>
-            <option value="Occupied">Occupied</option>
-            <option value="Maintenance">Maintenance</option>
+        <!-- HOTEL -->
+        <label>Hotel:</label>
+        <select id="hotelSelect" class="form-control">
+            @foreach (var h in ViewBag.Hotels)
+            {
+                <option value="@h.HotelId"
+                        selected="@(Model.Floor.HotelId == h.HotelId ? "selected" : null)">
+                    @h.HotelName
+                </option>
+            }
         </select>
-    </div>
 
-    <div class="form-group">
-        <label>Assets</label>
+        <!-- FLOOR -->
+        <label>Floor:</label>
+        <select asp-for="FloorId" class="form-control" id="floorSelect">
+            @foreach (var f in ViewBag.Floors)
+            {
+                <option value="@f.FloorId"
+                        selected="@(Model.FloorId == f.FloorId ? "selected" : null)">
+                    Floor @f.FloorNumber
+                </option>
+            }
+        </select>
+
+        <!-- TYPE -->
+        <label>Room Type:</label>
+        <select asp-for="TypeId" class="form-control">
+            @foreach (var t in ViewBag.RoomTypes)
+            {
+                <option value="@t.TypeId"
+                        selected="@(Model.TypeId == t.TypeId ? "selected" : null)">
+                    @t.TypeName
+                </option>
+            }
+        </select>
+
+        <!-- ASSETS -->
+        <label>Assets:</label>
         <div>
             @foreach (var asset in ViewBag.Assets)
             {
-                var check = Model.Assets.Any(a => a.AssetId == asset.AssetId);
+                var isChecked = Model.Assets.Any(a => a.AssetId == asset.AssetId);
 
-                <div class="form-check">
-                    <input class="form-check-input"
-                           type="checkbox"
+                <div>
+                    <input type="checkbox"
                            name="SelectedAssetIds"
                            value="@asset.AssetId"
-                           @(check ? "checked" : "") />
+                           checked="@(isChecked ? "checked" : null)" />
 
-                    <label class="form-check-label">@asset.AssetName</label>
+                    <label>@asset.AssetName</label>
                 </div>
             }
         </div>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+        <!-- STATUS -->
+        <label>Status:</label>
+        <select asp-for="RoomStatus" class="form-control">
+            <option value="Available"
+                    selected="@(Model.RoomStatus == "Available" ? "selected" : null)">
+                Available
+            </option>
 
-<br />
-<a asp-action="Admins">Back to List</a>
+            <option value="Occupied"
+                    selected="@(Model.RoomStatus == "Occupied" ? "selected" : null)">
+                Occupied
+            </option>
+
+            <option value="Maintenance"
+                    selected="@(Model.RoomStatus == "Maintenance" ? "selected" : null)">
+                Maintenance
+            </option>
+        </select>
+
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("hotelSelect").addEventListener("change", function () {
+            const hotelId = this.value;
+
+            fetch(`/Rooms/GetFloorsByHotel?hotelId=${hotelId}`)
+                .then(res => res.json())
+                .then(floors => {
+                    const floorSelect = document.getElementById("floorSelect");
+                    floorSelect.innerHTML = "";
+
+                    floors.forEach(f => {
+                        const opt = document.createElement("option");
+                        opt.value = f.floorId;
+                        opt.textContent = `Floor ${f.floorId} (${f.floorStatus})`;
+                        floorSelect.appendChild(opt);
+                    });
+                });
+        });
+    </script>
+}

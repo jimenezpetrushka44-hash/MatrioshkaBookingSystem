@@ -39,8 +39,10 @@
 
                 <div class="form-group">
                     <label asp-for="RoomId" class="control-label">Rooms (Available):</label>
-                    <select asp-for="RoomId" id="RoomId" class="form-control select-styled">
-                        <option disabled selected value="">Cargando Habitaciones...</option>
+                    <select asp-for="RoomId"
+                            class="form-control select-styled"
+                            asp-items="@(ViewData["RoomId"] as SelectList)">
+                        <option value="">Selecciona una habitación</option>
                     </select>
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
@@ -130,47 +132,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script>
-        var roomSelect = document.getElementById('RoomId');
-        var hiddenHotelId = document.getElementById('HotelIdHidden');
-        var selectedHotelId = hiddenHotelId ? hiddenHotelId.value : null;
-
-        function loadRooms(hotelId) {
-            roomSelect.innerHTML = '<option disabled selected value="">Cargando habitaciones...</option>';
-
-            fetch('/Rooms/GetAvailableRoomsByHotel?hotelId=' + hotelId)
-                .then(response => response.json())
-                .then(data => {
-                    roomSelect.innerHTML = '<option disabled selected value="">Selecciona una Habitación</option>';
-
-                    if (data.length === 0) {
-                        roomSelect.innerHTML = '<option disabled selected value="">No hay habitaciones disponibles en este hotel.</option>';
-                    } else {
-                        data.forEach(function(room) {
-                            var option = document.createElement('option');
-                            option.value = room.roomId;
-                            // Se asume que el JSON devuelto por /Rooms/GetAvailableRoomsByHotel tiene 'roomName'
-                            // Si necesitas mostrar el precio, necesitarás adaptarlo aquí
-                            option.textContent = `Room: ${room.roomId} ${room.roomName || ''}`;
-                            roomSelect.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al cargar habitaciones:', error);
-                    roomSelect.innerHTML = '<option disabled selected value="">Error al cargar (revisa la consola)</option>';
-                });
-        }
-
-        // Ejecutar la carga al iniciar la página si ya tenemos el HotelId preseleccionado
-        if (selectedHotelId && selectedHotelId > 0) {
-            loadRooms(selectedHotelId);
-        } else {
-            // Si por alguna razón llegamos sin HotelId (lo cual no debería pasar con la nueva URL)
-            roomSelect.innerHTML = '<option disabled selected value="">Hotel no seleccionado. Por favor, regrese al menú de Hoteles.</option>';
-        }
-
-        // Nota: Se elimina el listener 'change' del selector de hotel.
-    </script>
 }

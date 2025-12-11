@@ -4,76 +4,60 @@
     ViewData["BodyClass"] = "admin-page";
 }
 
+<div class="form-card">
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/rooms.css" />
-}
+    <h2>Create Room</h2>
 
-<div class="room-wrapper">
+    <form method="post">
 
-    <div class="side-illustration">
-        <img src="~/img/logohotel.png" class="room-img" alt="Cute Room Illustration" />
-        <h1 class="big-title">Add a new</h1>
-        <h1 class="accent-title">Room</h1>
-    </div>
+        <!-- HOTEL -->
+        <label>Hotel:</label>
+        <select id="hotelSelect" required>
+            <option disabled selected>Select a Hotel</option>
+            @foreach (var h in ViewBag.Hotels)
+            {
+                <option value="@h.HotelId">@h.HotelName</option>
+            }
+        </select>
 
-    <div class="form-section">
-        <div class="form-card">
+        <!-- FLOOR -->
+        <label>Floor:</label>
+        <select name="FloorId" id="floorSelect" required>
+            <option disabled selected>Select a Floor</option>
+        </select>
 
-            <h2 class="form-title">Room Information</h2>
+        <!-- TYPE -->
+        <label>Room Type:</label>
+        <select name="TypeId" required>
+            @foreach (var t in ViewBag.RoomTypes)
+            {
+                <option value="@t.TypeId">@t.TypeName</option>
+            }
+        </select>
 
-            <form method="post">
-
-                <!-- HOTEL SELECT -->
-                <label>Hotel:</label>
-                <select id="hotelSelect" required>
-                    <option disabled selected>Select a Hotel</option>
-                    @foreach (var h in ViewBag.Hotels)
-                    {
-                        <option value="@h.HotelId">@h.HotelName</option>
-                    }
-                </select>
-
-                <!-- DYNAMIC FLOOR SELECT -->
-                <label>Floor:</label>
-                <select name="FloorId" id="floorSelect" required>
-                    <option disabled selected>Select a Floor</option>
-                </select>
-
-                <!-- ROOM TYPE -->
-                <label>Room Type:</label>
-                <select name="TypeId" required>
-                    @foreach (var t in ViewBag.RoomTypes)
-                    {
-                        <option value="@t.TypeId">@t.TypeName</option>
-                    }
-                </select>
-                <label>Room Assets:</label>
-                <div class="asset-checkbox-group">
-                    @foreach (var asset in ViewBag.Assets)
-                    {
-                        <div>
-                            <input type="checkbox" name="SelectedAssetIds" value="@asset.AssetId" id="asset-@asset.AssetId" />
-                            <label for="asset-@asset.AssetId">@asset.AssetName</label>
-                        </div>
-                    }
+        <!-- ASSETS -->
+        <label>Assets:</label>
+        <div>
+            @foreach (var asset in ViewBag.Assets)
+            {
+                <div>
+                    <input type="checkbox" name="SelectedAssetIds" value="@asset.AssetId" />
+                    <label>@asset.AssetName</label>
                 </div>
-
-                <!-- STATUS -->
-                <label>Status:</label>
-                <select name="RoomStatus">
-                    <option value="Available">Available</option>
-                    <option value="Occupied">Occupied</option>
-                    <option value="Maintenance">Maintenance</option>
-                </select>
-
-                <button type="submit" class="create-btn">Create Room</button>
-
-            </form>
-
+            }
         </div>
-    </div>
 
+        <!-- STATUS -->
+        <label>Status:</label>
+        <select name="RoomStatus">
+            <option value="Available">Available</option>
+            <option value="Occupied">Occupied</option>
+            <option value="Maintenance">Maintenance</option>
+        </select>
+
+        <button type="submit">Create</button>
+
+    </form>
 </div>
 
 @section Scripts {
@@ -84,13 +68,14 @@
             fetch(`/Rooms/GetFloorsByHotel?hotelId=${hotelId}`)
                 .then(res => res.json())
                 .then(floors => {
+
                     const floorSelect = document.getElementById("floorSelect");
                     floorSelect.innerHTML = "";
 
                     floors.forEach(f => {
                         const opt = document.createElement("option");
                         opt.value = f.floorId;
-                        opt.textContent = `Floor ${f.floorId} (${f.floorStatus})`;
+                        opt.textContent = `Floor ${f.floorNumber} (${f.floorStatus})`;
                         floorSelect.appendChild(opt);
                     });
                 });
