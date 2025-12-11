@@ -56,7 +56,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
-        public IActionResult Create(int? hotelId)
+        public IActionResult Create(int hotelId)
         {
             var hotel = _context.Hotels.Find(hotelId);
 
@@ -85,12 +85,13 @@ namespace MatrioshkaBookingSystem.Controllers
                     RoomDisplay = $"Room: {r.RoomId} {r.Type.TypeName} - $ {r.Type.TypePrice:F2}"
                 }), "RoomId", "RoomDisplay");
 
-            }else
+            }
+            else
             {
                 ViewData["RoomId"] = new SelectList(Enumerable.Empty<SelectListItem>(), "RoomId", "RoomId");
             }
 
-                return View(new Booking());
+            return View(new Booking());
         }
 
         public async Task<IActionResult> Invoice(int? id)

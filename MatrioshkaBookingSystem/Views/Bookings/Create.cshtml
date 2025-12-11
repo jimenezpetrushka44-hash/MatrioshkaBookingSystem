@@ -26,20 +26,21 @@
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-
                 <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
 
                 <div class="form-group">
-                    <label for="HotelFilter" class="control-label">Hotels:</label>
-                    <select id="HotelFilter" name="HotelFilter" class="form-control select-styled" asp-items="ViewBag.Hotels">
-                        <option disabled selected value="">Select a Hotel</option>
-                    </select>
+                    <label class="control-label">Hotel Seleccionado:</label>
+                    <div class="selected-hotel-display">
+                        <strong style="font-size: 1.1em;">@ViewBag.SelectedHotelName</strong>
+                    </div>
                 </div>
+
+                <input type="hidden" id="HotelIdHidden" value="@ViewBag.SelectedHotelId" />
 
                 <div class="form-group">
                     <label asp-for="RoomId" class="control-label">Rooms (Available):</label>
-                    <select asp-for="RoomId" class="form-control select-styled">
-                        <option disabled selected value="">Please select a Hotel first</option>
+                    <select asp-for="RoomId" id="RoomId" class="form-control select-styled">
+                        <option disabled selected value="">Cargando Habitaciones...</option>
                     </select>
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
@@ -89,6 +90,7 @@
                     <input asp-for="EndofBooking" class="form-control" type="date" />
                     <span asp-validation-for="EndofBooking" class="text-danger"></span>
                 </div>
+
                 @if (ViewBag.ExtraAssets != null && ViewBag.ExtraAssets.Count > 0)
                 {
                     <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
@@ -116,7 +118,7 @@
                 }
 
                 <div class="form-group submit-group">
-                    <button type="submit" value="Create" class="btn btn-primary create-btn">Crete Booking</button>
+                    <button type="submit" value="Create" class="btn btn-primary create-btn">Create Booking</button>
                     <a asp-action="Index" class="btn btn-secondary back-btn">Go back</a>
                 </div>
             </form>
@@ -130,36 +132,45 @@
     }
 
     <script>
-        document.getElementById('HotelFilter').addEventListener('change', function() {
-            var hotelId = this.value;
-            var roomSelect = document.getElementById('RoomId');
+        var roomSelect = document.getElementById('RoomId');
+        var hiddenHotelId = document.getElementById('HotelIdHidden');
+        var selectedHotelId = hiddenHotelId ? hiddenHotelId.value : null;
 
+        function loadRooms(hotelId) {
             roomSelect.innerHTML = '<option disabled selected value="">Cargando habitaciones...</option>';
 
-            if (hotelId) {
-                fetch('/Rooms/GetAvailableRoomsByHotel?hotelId=' + hotelId)
-                    .then(response => response.json())
-                    .then(data => {
-                        roomSelect.innerHTML = '<option disabled selected value="">Selecciona una Habitación</option>';
+            fetch('/Rooms/GetAvailableRoomsByHotel?hotelId=' + hotelId)
+                .then(response => response.json())
+                .then(data => {
+                    roomSelect.innerHTML = '<option disabled selected value="">Selecciona una Habitación</option>';
 
-                        if (data.length === 0) {
-                            roomSelect.innerHTML = '<option disabled selected value="">No hay habitaciones disponibles en este hotel.</option>';
-                        } else {
-                            data.forEach(function(room) {
-                                var option = document.createElement('option');
-                                option.value = room.roomId;
-                                option.textContent = room.roomName;
-                                roomSelect.appendChild(option);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar habitaciones:', error);
-                        roomSelect.innerHTML = '<option disabled selected value="">Error al cargar (revisa la consola)</option>';
-                    });
-            } else {
-                roomSelect.innerHTML = '<option disabled selected value="">Selecciona un Hotel Primero</option>';
-            }
-        });
+                    if (data.length === 0) {
+                        roomSelect.innerHTML = '<option disabled selected value="">No hay habitaciones disponibles en este hotel.</option>';
+                    } else {
+                        data.forEach(function(room) {
+                            var option = document.createElement('option');
+                            option.value = room.roomId;
+                            // Se asume que el JSON devuelto por /Rooms/GetAvailableRoomsByHotel tiene 'roomName'
+                            // Si necesitas mostrar el precio, necesitarás adaptarlo aquí
+                            option.textContent = `Room: ${room.roomId} ${room.roomName || ''}`;
+                            roomSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar habitaciones:', error);
+                    roomSelect.innerHTML = '<option disabled selected value="">Error al cargar (revisa la consola)</option>';
+                });
+        }
+
+        // Ejecutar la carga al iniciar la página si ya tenemos el HotelId preseleccionado
+        if (selectedHotelId && selectedHotelId > 0) {
+            loadRooms(selectedHotelId);
+        } else {
+            // Si por alguna razón llegamos sin HotelId (lo cual no debería pasar con la nueva URL)
+            roomSelect.innerHTML = '<option disabled selected value="">Hotel no seleccionado. Por favor, regrese al menú de Hoteles.</option>';
+        }
+
+        // Nota: Se elimina el listener 'change' del selector de hotel.
     </script>
 }
