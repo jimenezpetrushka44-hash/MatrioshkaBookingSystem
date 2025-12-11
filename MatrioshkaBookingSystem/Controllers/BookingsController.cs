@@ -78,6 +78,8 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(b => b.Room)
                     .ThenInclude(r => r.Floor)
                         .ThenInclude(f => f.Hotel)
+                .Include(b => b.Room)
+                    .ThenInclude(r => r.Type)
                 .Include(b => b.Billing)
                 .Include(b => b.Bookingextraassets)
                     .ThenInclude(bea => bea.ExtraAsset)
@@ -88,7 +90,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 return NotFound();
             }
 
-            if (booking.Room == null)
+            if (booking.Room == null || booking.Room.Type == null)
             {
                 booking.Room = await _context.Rooms
                     .Include(r => r.Floor).ThenInclude(f => f.Hotel)
@@ -96,10 +98,9 @@ namespace MatrioshkaBookingSystem.Controllers
                     .FirstOrDefaultAsync(r => r.RoomId == booking.RoomId);
             }
 
-
             var room = booking.Room;
-
             decimal roomBasePrice = room?.Type?.TypePrice ?? 0;
+
             DateTime start = booking.DateofBooking.ToDateTime(TimeOnly.MinValue);
             DateTime end = booking.EndofBooking.ToDateTime(TimeOnly.MinValue);
 
@@ -107,7 +108,7 @@ namespace MatrioshkaBookingSystem.Controllers
             int numberOfNights = (int)Math.Ceiling(duration.TotalDays);
 
             decimal foodServiceCost = 0;
-          
+
             decimal totalExtraAssetsPrice = booking.Bookingextraassets.Sum(bea => bea.ExtraAssetPrice);
 
             decimal roomTotal = roomBasePrice * numberOfNights;
@@ -121,7 +122,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 Booking = booking,
                 BillingInfo = booking.Billing,
                 Room = booking.Room,
-                Hotel = booking.Room.Floor.Hotel,
+                Hotel = booking.Room?.Floor?.Hotel,
 
                 RoomPrice = roomBasePrice,
                 NumberOfNights = numberOfNights,
@@ -142,7 +143,7 @@ namespace MatrioshkaBookingSystem.Controllers
             if (string.IsNullOrEmpty(userName))
             {
                 ModelState.AddModelError(string.Empty, "Oh-Uh: User not identified!");
-                return ReturnViewWithViewData(booking);
+                return RedirectToAction("Create");
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
@@ -150,7 +151,7 @@ namespace MatrioshkaBookingSystem.Controllers
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Oh-Uh: User not identified!");
-                return ReturnViewWithViewData(booking);
+                return RedirectToAction("Create");
             }
 
             booking.UserId = user.UserId;
@@ -164,7 +165,6 @@ namespace MatrioshkaBookingSystem.Controllers
             {
                 ModelState.AddModelError(string.Empty, "This room is already taken!, Pick another one.");
                 return ReturnViewWithViewData(booking);
-
             }
 
             if (booking.Billing != null)
@@ -172,37 +172,49 @@ namespace MatrioshkaBookingSystem.Controllers
                 booking.Billing.UserId = user.UserId;
                 _context.Billinginfos.Add(booking.Billing);
 
-                await _context.SaveChangesAsync();
-                booking.BillingId = booking.Billing.BillingId;
-            }
-            if (ModelState.IsValid)
-            {
-
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
-
-                if (SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
+                try
                 {
-                    var assets = _context.Extraassets
-                        .Where(ea => SelectedExtraAssets.Contains(ea.ExtraAssetId)).ToList();
-
-                    foreach (var asset in assets)
-                    {
-                        var bookingExtraAsset = new Bookingextraasset
-                        {
-                            BookingId = booking.BookingId,
-                            ExtraAssetId = asset.ExtraAssetId,
-                            ExtraAssetPrice = asset.AssetPrice
-
-                        };
-                        _context.Bookingextraassets.Add(bookingExtraAsset);
-                    }
                     await _context.SaveChangesAsync();
+                    booking.BillingId = booking.Billing.BillingId;
                 }
-                return RedirectToAction("Invoice", new { id = booking.BookingId });
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError(string.Empty, "Error al guardar la información de facturación en la base de datos.");
+                    return ReturnViewWithViewData(booking);
+                }
             }
 
-            return ReturnViewWithViewData(booking);
+            _context.Add(booking);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty, "Error al guardar la reserva en la base de datos. Verifique que todos los campos obligatorios estén llenos.");
+                return ReturnViewWithViewData(booking);
+            }
+
+            if (SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
+            {
+                var assets = _context.Extraassets
+                    .Where(ea => SelectedExtraAssets.Contains(ea.ExtraAssetId)).ToList();
+
+                foreach (var asset in assets)
+                {
+                    var bookingExtraAsset = new Bookingextraasset
+                    {
+                        BookingId = booking.BookingId,
+                        ExtraAssetId = asset.ExtraAssetId,
+                        ExtraAssetPrice = asset.AssetPrice
+                    };
+                    _context.Bookingextraassets.Add(bookingExtraAsset);
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Invoice", new { id = booking.BookingId });
         }
 
         public async Task<IActionResult> Edit(int? id)
