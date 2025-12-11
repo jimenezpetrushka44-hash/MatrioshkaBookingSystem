@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MatrioshkaBookingSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MatrioshkaBookingSystem.Models;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+
     public class RoomsController : Controller
     {
         private readonly BookingDbContext _context;

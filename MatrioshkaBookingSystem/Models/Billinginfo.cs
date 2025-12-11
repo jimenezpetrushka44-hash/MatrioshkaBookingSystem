@@ -9,7 +9,6 @@ public partial class Billinginfo
     public int BillingId { get; set; }
 
     [Required]
-    [StringLength(100)]
     public int UserId { get; set; }
 
     [Required]

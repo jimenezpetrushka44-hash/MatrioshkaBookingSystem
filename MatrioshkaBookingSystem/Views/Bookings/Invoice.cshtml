@@ -1,0 +1,121 @@
+﻿@model MatrioshkaBookingSystem.Models.BookingInvoiceViewModel
+
+@{
+    ViewData["Title"] = "Booking Confirmation & Invoice";
+    ViewData["BodyClass"] = "invoice-page";
+}
+
+@section Styles {
+    <style>
+        .invoice-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+            font-size: 16px;
+            line-height: 24px;
+            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            color: #555;
+        }
+        .invoice-header { text-align: center; margin-bottom: 20px; }
+        .invoice-header h1 { color: #337ab7; font-size: 28px; }
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .invoice-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .invoice-table th, .invoice-table td { border: 1px solid #eee; padding: 8px; text-align: left; }
+        .invoice-table th { background-color: #f2f2f2; }
+        .total-row td {
+            font-weight: bold;
+            background-color: #e6f7ff;
+            border-top: 2px solid #337ab7;
+        }
+        .total-row .total-label { text-align: right; font-size: 1.2em; }
+        .total-row .total-amount { font-size: 1.4em; color: #337ab7; }
+        @@media print {
+            .btn { display: none; }
+        }
+    </style>
+}
+
+<div class="invoice-container">
+    <div class="invoice-header">
+        <h1>Booking Confirmation & Invoice</h1>
+        <p>Invoice #@Model.Booking.BookingId</p>
+        <p>Date: @DateTime.Now.ToShortDateString()</p>
+    </div>
+
+    <div class="invoice-details">
+        <div>
+            <strong>Client:</strong><br />
+            @Model.BillingInfo.FullName<br />
+            @Model.BillingInfo.Email
+        </div>
+        <div>
+            <strong>Hotel:</strong><br />
+            @Model.Hotel.HotelName<br />
+            Room: @Model.Room.RoomId
+        </div>
+        <div>
+            <strong>Booking Period:</strong><br />
+            Start: @Model.Booking.DateofBooking.ToShortDateString()<br />
+            End: @Model.Booking.EndofBooking.ToShortDateString() (@Model.NumberOfNights nights)
+        </div>
+    </div>
+
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity / Nights</th>
+                <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Room: @Model.Room.RoomId</td>
+                <td>@Model.NumberOfNights</td>
+                <td style="text-align: right;">@Model.RoomPrice.ToString("C")</td>
+                <td style="text-align: right;">@(Model.RoomPrice* Model.NumberOfNights).ToString("C")</td>
+            </tr>
+
+
+            @foreach (var assetBooking in Model.Booking.Bookingextraassets)
+            {
+                <tr>
+                    <td>Extra Asset: @assetBooking.ExtraAsset.ExtraAssetName</td>
+                    <td>1</td>
+                    <td style="text-align: right;">@assetBooking.ExtraAssetPrice.ToString("C")</td>
+                    <td style="text-align: right;">@assetBooking.ExtraAssetPrice.ToString("C")</td>
+                </tr>
+            }
+
+            <tr class="total-row">
+                <td colspan="3" class="total-label">Subtotal:</td>
+                <td style="text-align: right;">@Model.SubTotal.ToString("C")</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="3" class="total-label">Tax (10%):</td>
+                <td style="text-align: right;">@((Model.SubTotal * 0.10m).ToString("C"))</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="3" class="total-label">TOTAL DUE:</td>
+                <td class="total-amount" style="text-align: right;">@Model.TotalDue.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 30px;">Thank you for booking with Matrioshka Booking System!</p>
+
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
+    <a asp-action="Index" class="btn btn-secondary">Go to Bookings List</a>
+</div>

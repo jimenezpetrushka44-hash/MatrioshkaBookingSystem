@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MatrioshkaBookingSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    [Authorize(Roles = "Admin")] // For security purposes
     public class HotelsController : Controller
     {
         private readonly BookingDbContext _context;

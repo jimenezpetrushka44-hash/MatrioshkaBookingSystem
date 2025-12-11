@@ -67,9 +67,75 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(new Booking());
         }
 
+        public async Task<IActionResult> Invoice(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var booking = await _context.Bookings
+                .Include(b => b.Room)
+                    .ThenInclude(r => r.Floor)
+                        .ThenInclude(f => f.Hotel)
+                .Include(b => b.Billing)
+                .Include(b => b.Bookingextraassets)
+                    .ThenInclude(bea => bea.ExtraAsset)
+                .FirstOrDefaultAsync(m => m.BookingId == id);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            if (booking.Room == null)
+            {
+                booking.Room = await _context.Rooms
+                    .Include(r => r.Floor).ThenInclude(f => f.Hotel)
+                    .Include(r => r.Type)
+                    .FirstOrDefaultAsync(r => r.RoomId == booking.RoomId);
+            }
+
+
+            var room = booking.Room;
+
+            decimal roomBasePrice = room?.Type?.TypePrice ?? 0;
+            DateTime start = booking.DateofBooking.ToDateTime(TimeOnly.MinValue);
+            DateTime end = booking.EndofBooking.ToDateTime(TimeOnly.MinValue);
+
+            TimeSpan duration = end - start;
+            int numberOfNights = (int)Math.Ceiling(duration.TotalDays);
+
+            decimal foodServiceCost = 0;
+          
+            decimal totalExtraAssetsPrice = booking.Bookingextraassets.Sum(bea => bea.ExtraAssetPrice);
+
+            decimal roomTotal = roomBasePrice * numberOfNights;
+            decimal subTotal = roomTotal + totalExtraAssetsPrice + foodServiceCost;
+            decimal taxRate = 0.10m;
+            decimal totalTax = subTotal * taxRate;
+            decimal totalDue = subTotal + totalTax;
+
+            var viewModel = new BookingInvoiceViewModel
+            {
+                Booking = booking,
+                BillingInfo = booking.Billing,
+                Room = booking.Room,
+                Hotel = booking.Room.Floor.Hotel,
+
+                RoomPrice = roomBasePrice,
+                NumberOfNights = numberOfNights,
+                TotalExtraAssetsPrice = totalExtraAssetsPrice,
+                SubTotal = subTotal,
+                TotalDue = totalDue
+            };
+
+            return View(viewModel);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking, int[] SelectedExtraAssets)
+        public async Task<IActionResult> Create([Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking,FoodOrderType,Billing")] Booking booking, int[] SelectedExtraAssets)
         {
             var userName = User.FindFirstValue(ClaimTypes.Name);
 
@@ -94,7 +160,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Where(b => booking.DateofBooking < b.EndofBooking && booking.EndofBooking > b.DateofBooking)
                 .AnyAsync();
 
-            if(conflict)
+            if (conflict)
             {
                 ModelState.AddModelError(string.Empty, "This room is already taken!, Pick another one.");
                 return ReturnViewWithViewData(booking);
@@ -107,10 +173,11 @@ namespace MatrioshkaBookingSystem.Controllers
                 _context.Billinginfos.Add(booking.Billing);
 
                 await _context.SaveChangesAsync();
-                booking.BillingId = booking.Billing.BillingId; 
+                booking.BillingId = booking.Billing.BillingId;
             }
             if (ModelState.IsValid)
             {
+
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
 
@@ -132,7 +199,7 @@ namespace MatrioshkaBookingSystem.Controllers
                     }
                     await _context.SaveChangesAsync();
                 }
-                return RedirectToAction("Admins", "Admin");
+                return RedirectToAction("Invoice", new { id = booking.BookingId });
             }
 
             return ReturnViewWithViewData(booking);
@@ -158,7 +225,7 @@ namespace MatrioshkaBookingSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,RoomId,BillingId,DateofBooking,EndofBooking,FoodOrderType,Status")] Booking booking)
         {
             if (id != booking.BookingId)
             {
