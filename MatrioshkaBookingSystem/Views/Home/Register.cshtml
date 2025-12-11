@@ -15,7 +15,7 @@
             <div class="login-box">
                 <h2>Sign Up</h2>
 
-                <form method="post" asp-action="Register">
+                <form method="post" asp-action="Create" asp-controller="Users">
 
                     <label>First Name:</label>
                     <input type="text" name="firstName" required />
@@ -34,11 +34,7 @@
 
                     <label>Password:</label>
                     <input type="password" name="password" required />
-                    <label>Select Role:</label>
-                    <select name="role" required>
-                        <option value="Admin">Admin</option>
-                        <option value="Client">Client</option>
-                    </select>
+                  
                     <div class="button-row">
                         <button type="submit">Create Account</button>
                     </div>

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
-
 namespace MatrioshkaBookingSystem.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -34,16 +33,11 @@ namespace MatrioshkaBookingSystem.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var hotel = await _context.Hotels
-                .FirstOrDefaultAsync(m => m.HotelId == id);
+            var hotel = await _context.Hotels.FirstOrDefaultAsync(m => m.HotelId == id);
             if (hotel == null)
-            {
                 return NotFound();
-            }
 
             return View(hotel);
         }
@@ -68,7 +62,6 @@ namespace MatrioshkaBookingSystem.Controllers
                         Directory.CreateDirectory(folderPath);
 
                     string filename = Guid.NewGuid().ToString() + Path.GetExtension(HotelImage.FileName);
-
                     string filepath = Path.Combine(folderPath, filename);
 
                     using (var stream = new FileStream(filepath, FileMode.Create))
@@ -78,103 +71,79 @@ namespace MatrioshkaBookingSystem.Controllers
 
                     hotel.ImagePath = "/img/Hotels/" + filename;
                 }
+
                 _context.Add(hotel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Admins", "Admin");
             }
+
             return View(hotel);
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var hotel = await _context.Hotels.FindAsync(id);
             if (hotel == null)
-            {
                 return NotFound();
-            }
+
             return View(hotel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, IFormFile ImageFile)
+
+        public async Task<IActionResult> Edit(int id, Hotel hotel, IFormFile ImageFile)
         {
-            var hotelToUpdate = await _context.Hotels
-                .FirstOrDefaultAsync(h => h.HotelId == id);
+            var hotelToUpdate = await _context.Hotels.FirstOrDefaultAsync(h => h.HotelId == id);
 
             if (hotelToUpdate == null)
-            {
                 return NotFound();
-            }
 
-            if (await TryUpdateModelAsync<Hotel>(
-                hotelToUpdate,
-                "",
-                h => h.HotelName, h => h.HotelLocation, h => h.HotelStatus, h => h.ImagePath))
+            hotelToUpdate.HotelName = hotel.HotelName;
+            hotelToUpdate.HotelLocation = hotel.HotelLocation;
+            hotelToUpdate.HotelStatus = hotel.HotelStatus;
+
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                if (ImageFile != null && ImageFile.Length > 0)
+                string folderPath = Path.Combine(_env.WebRootPath, "img", "Hotels");
+
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                string filename = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                string filepath = Path.Combine(folderPath, filename);
+
+                using (var stream = new FileStream(filepath, FileMode.Create))
                 {
-                    string folderPath = Path.Combine(_env.WebRootPath, "img", "Hotels");
-
-                    if (!Directory.Exists(folderPath))
-                        Directory.CreateDirectory(folderPath);
-
-                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
-                    string filepath = Path.Combine(folderPath, filename);
-
-                    using (var stream = new FileStream(filepath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(stream);
-                    }
-
-                    hotelToUpdate.ImagePath = "/img/Hotels/" + filename;
+                    await ImageFile.CopyToAsync(stream);
                 }
 
-                try
-                {
-                    _context.Update(hotelToUpdate);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!HotelExists(hotelToUpdate.HotelId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Error al guardar: " + ex.Message);
-                    return View(hotelToUpdate);
-                }
+                hotelToUpdate.ImagePath = "/img/Hotels/" + filename;
             }
 
-            return View(hotelToUpdate);
+            try
+            {
+                _context.Update(hotelToUpdate);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View(hotelToUpdate);
+            }
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var hotel = await _context.Hotels
-                .FirstOrDefaultAsync(m => m.HotelId == id);
+            var hotel = await _context.Hotels.FirstOrDefaultAsync(m => m.HotelId == id);
             if (hotel == null)
-            {
                 return NotFound();
-            }
 
             return View(hotel);
         }

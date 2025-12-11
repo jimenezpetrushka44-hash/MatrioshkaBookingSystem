@@ -39,7 +39,6 @@
                         <a asp-controller="Users" asp-action="Edit" asp-route-id="@u.UserId" class="action-btn">Edit</a> |
                         <a asp-controller="Users" asp-action="Delete" asp-route-id="@u.UserId" class="danger-btn">Delete</a>
                     </td>
-
                 </tr>
             }
         </table>
@@ -76,6 +75,7 @@
             }
         </table>
     </div>
+
     <div class="section card-section" id="roomassets-section">
         <h2>Room Asset Options</h2>
 
@@ -88,6 +88,7 @@
                 <th>Asset ID</th>
                 <th>Name</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
 
             @foreach (var a in Model.RoomAssets)
@@ -96,10 +97,15 @@
                     <td>@a.AssetId</td>
                     <td>@a.AssetName</td>
                     <td>@a.AssetStatus</td>
+                    <td>
+                        <a asp-controller="RoomAssets" asp-action="Edit" asp-route-id="@a.AssetId" class="action-btn">Edit</a>
+                        <a asp-controller="RoomAssets" asp-action="Delete" asp-route-id="@a.AssetId" class="danger-btn">Delete</a>
+                    </td>
                 </tr>
             }
         </table>
     </div>
+
     <div class="section card-section" id="extraassets-section">
         <h2>Extra Assets (Cobrables a Cliente)</h2>
 
@@ -113,6 +119,7 @@
                 <th>Name</th>
                 <th>Price</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
 
             @foreach (var a in Model.ExtraAssets)
@@ -122,10 +129,15 @@
                     <td>@a.ExtraAssetName</td>
                     <td>@a.AssetPrice.ToString("C")</td>
                     <td>@a.ExtraAssetStatus</td>
+                    <td>
+                        <a asp-controller="ExtraAssets" asp-action="Edit" asp-route-id="@a.ExtraAssetId" class="action-btn">Edit</a>
+                        <a asp-controller="ExtraAssets" asp-action="Delete" asp-route-id="@a.ExtraAssetId" class="danger-btn">Delete</a>
+                    </td>
                 </tr>
             }
         </table>
     </div>
+
     <div class="section card-section" id="floors-section">
         <h2>Floors</h2>
 
@@ -138,6 +150,7 @@
                 <th>Floor ID</th>
                 <th>Hotel</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
 
             @foreach (var f in Model.Floors)
@@ -146,10 +159,15 @@
                     <td>@f.FloorId</td>
                     <td>@f.Hotel.HotelName</td>
                     <td>@f.FloorStatus</td>
+                    <td>
+                        <a asp-controller="Floors" asp-action="Edit" asp-route-id="@f.FloorId" class="action-btn">Edit</a>
+                        <a asp-controller="Floors" asp-action="Delete" asp-route-id="@f.FloorId" class="danger-btn">Delete</a>
+                    </td>
                 </tr>
             }
         </table>
     </div>
+
     <div class="section card-section" id="rooms-section">
         <h2>Rooms</h2>
 
@@ -164,6 +182,7 @@
                 <th>Floor</th>
                 <th>Type</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
 
             @foreach (var r in Model.Rooms)
@@ -174,6 +193,10 @@
                     <td>@r.Floor.FloorId</td>
                     <td>@r.Type.TypeName</td>
                     <td>@r.RoomStatus</td>
+                    <td>
+                        <a asp-controller="Rooms" asp-action="Edit" asp-route-id="@r.RoomId" class="action-btn">Edit</a>
+                        <a asp-controller="Rooms" asp-action="Delete" asp-route-id="@r.RoomId" class="danger-btn">Delete</a>
+                    </td>
                 </tr>
             }
         </table>
