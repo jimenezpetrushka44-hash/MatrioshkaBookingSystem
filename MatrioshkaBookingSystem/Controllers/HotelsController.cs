@@ -135,25 +135,27 @@ namespace MatrioshkaBookingSystem.Controllers
                     hotelToUpdate.ImagePath = "/img/Hotels/" + filename;
                 }
 
-                if (ModelState.IsValid)
+                try
                 {
-                    try
-                    {
-                        _context.Update(hotelToUpdate);
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!HotelExists(hotelToUpdate.HotelId))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
+                    _context.Update(hotelToUpdate);
+                    await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!HotelExists(hotelToUpdate.HotelId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error al guardar: " + ex.Message);
+                    return View(hotelToUpdate);
                 }
             }
 
