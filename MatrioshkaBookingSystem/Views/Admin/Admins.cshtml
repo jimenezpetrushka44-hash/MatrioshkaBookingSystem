@@ -13,7 +13,7 @@
 
     <h1 class="title">Admin Dashboard</h1>
 
-    <div class="section">
+    <div class="section card-section" id="users-section">
         <h2>Users</h2>
 
         <table class="table">
@@ -23,6 +23,7 @@
                 <th>User</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Actions</th>
             </tr>
 
             @foreach (var u in Model.Users)
@@ -33,12 +34,18 @@
                     <td>@u.Username</td>
                     <td>@u.Email</td>
                     <td>@u.Phone</td>
+
+                    <td>
+                        <a asp-controller="Users" asp-action="Edit" asp-route-id="@u.UserId" class="action-btn">Edit</a> |
+                        <a asp-controller="Users" asp-action="Delete" asp-route-id="@u.UserId" class="danger-btn">Delete</a>
+                    </td>
+
                 </tr>
             }
         </table>
     </div>
 
-    <div class="section">
+    <div class="section card-section" id="hotels-section">
         <h2>Hotels</h2>
 
         <p>
@@ -69,7 +76,7 @@
             }
         </table>
     </div>
-    <div class="section">
+    <div class="section card-section" id="roomassets-section">
         <h2>Room Asset Options</h2>
 
         <p>
@@ -93,7 +100,7 @@
             }
         </table>
     </div>
-    <div class="section">
+    <div class="section card-section" id="extraassets-section">
         <h2>Extra Assets (Cobrables a Cliente)</h2>
 
         <p>
@@ -119,7 +126,7 @@
             }
         </table>
     </div>
-    <div class="section">
+    <div class="section card-section" id="floors-section">
         <h2>Floors</h2>
 
         <p>
@@ -143,7 +150,7 @@
             }
         </table>
     </div>
-    <div class="section">
+    <div class="section card-section" id="rooms-section">
         <h2>Rooms</h2>
 
         <p>
@@ -172,7 +179,7 @@
         </table>
     </div>
 
-    <div class="section">
+    <div class="section card-section" id="bookings-section">
         <h2>Bookings</h2>
 
         <p>

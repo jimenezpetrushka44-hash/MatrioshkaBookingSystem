@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MatrioshkaBookingSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
         private readonly BookingDbContext _context;
@@ -18,13 +21,11 @@ namespace MatrioshkaBookingSystem.Controllers
             _context = context;
         }
 
-        // GET: Users
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Users/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,7 +34,9 @@ namespace MatrioshkaBookingSystem.Controllers
             }
 
             var user = await _context.Users
+                .Include(u => u.Roles)
                 .FirstOrDefaultAsync(m => m.UserId == id);
+
             if (user == null)
             {
                 return NotFound();
@@ -42,29 +45,32 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(user);
         }
 
-        // GET: Users/Create
+        [AllowAnonymous]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("UserId,FirstName,LastName,Username,UserPassword,Email,Phone")] User user)
         {
             if (ModelState.IsValid)
             {
+                var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "User");
+                if (defaultRole != null)
+                {
+                    user.Roles.Add(defaultRole);
+                }
+
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Login", "Account");
             }
             return View(user);
         }
 
-        // GET: Users/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,36 +78,58 @@ namespace MatrioshkaBookingSystem.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
             if (user == null)
             {
                 return NotFound();
             }
+
+            var roles = await _context.Roles.ToListAsync();
+
+            int? currentRoleId = user.Roles.FirstOrDefault()?.RoleId;
+
+            ViewData["RoleId"] = new SelectList(roles, "RoleId", "RoleName", currentRoleId);
+
             return View(user);
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,FirstName,LastName,Username,UserPassword,Email,Phone")] User user)
+        public async Task<IActionResult> Edit(int id, int RoleId)
         {
-            if (id != user.UserId)
+            var userToUpdate = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (userToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<User>(
+                userToUpdate,
+                "",
+                u => u.FirstName, u => u.LastName, u => u.Username, u => u.Email, u => u.Phone))
             {
                 try
                 {
-                    _context.Update(user);
+                    var newRole = await _context.Roles.FindAsync(RoleId);
+
+                    if (newRole != null)
+                    {
+                        userToUpdate.Roles.Clear();
+                        userToUpdate.Roles.Add(newRole);
+                    }
+
                     await _context.SaveChangesAsync();
+                    return RedirectToAction("Admins", "Admin");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.UserId))
+                    if (!_context.Users.Any(e => e.UserId == userToUpdate.UserId))
                     {
                         return NotFound();
                     }
@@ -110,12 +138,12 @@ namespace MatrioshkaBookingSystem.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(user);
-        }
 
-        // GET: Users/Delete/5
+            var roles = await _context.Roles.ToListAsync();
+            ViewData["RoleId"] = new SelectList(roles, "RoleId", "RoleName", RoleId);
+            return View(userToUpdate);
+        }
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,7 +161,6 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -145,7 +172,7 @@ namespace MatrioshkaBookingSystem.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Admins", "Admin");
         }
 
         private bool UserExists(int id)

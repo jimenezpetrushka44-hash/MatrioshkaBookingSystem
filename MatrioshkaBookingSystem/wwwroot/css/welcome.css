@@ -1,18 +1,54 @@
-﻿body {
+﻿/* --- ANIMACIONES GLOBALES (Se definen primero) --- */
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes subtlePulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.005); /* Escala ligeramente */
+        filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.4));
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* --- ESTILOS BASE Y CONTENEDOR --- */
+
+body {
     background-color: #162447;
     font-family: "Georgia", serif;
     margin: 0;
     padding: 0;
+    /* Evita que el scroll aparezca durante la animación de entrada */
+    overflow-x: hidden;
 }
 
 .welcome-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 100px; 
-    gap: 80px; 
+    padding-top: 100px;
+    gap: 80px;
+    /* Animación de entrada para el wrapper */
+    animation: fadeInSlideUp 0.8s ease-out;
 }
 
+/* --- COLUMNA DE IMAGEN --- */
 
 .doll-column {
     display: flex;
@@ -24,7 +60,11 @@
     width: 900px;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(0,0,0,0.3));
+    /* Aplicar el pulso sutil a la imagen */
+    animation: subtlePulse 8s ease-in-out infinite;
 }
+
+/* --- COLUMNA DE LOGIN Y TEXTO --- */
 
 .login-column {
     display: flex;
@@ -36,6 +76,8 @@
     font-size: 48px;
     color: #dde7ff;
     margin-bottom: 20px;
+    /* Animación de entrada con retraso */
+    animation: fadeInSlideUp 0.6s ease-out 0.4s backwards;
 }
 
 
@@ -45,6 +87,8 @@
     width: 420px;
     border-radius: 25px;
     box-shadow: 0 0 30px rgba(0,0,0,0.25);
+    /* Animación de entrada con retraso */
+    animation: fadeInSlideUp 0.6s ease-out 0.6s backwards;
 }
 
     .login-box h2 {
@@ -65,12 +109,21 @@
         width: 100%;
         padding: 12px;
         border-radius: 20px;
-        border: none;
+        border: 2px solid transparent; /* Añadido para la animación de focus */
         margin-bottom: 20px;
         font-size: 16px;
         background-color: #ffffff;
         box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        /* Transición para el efecto de focus */
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
+
+        /* Efecto de Focus: El campo se ilumina suavemente al hacer click */
+        .login-box input:focus {
+            outline: none;
+            border-color: #1f4068;
+            box-shadow: 0 0 10px rgba(31, 64, 104, 0.5);
+        }
 
 .button-row {
     display: flex;
@@ -86,11 +139,18 @@
         background-color: #1f4068;
         color: #dff4ff;
         cursor: pointer;
-        transition: 0.3s;
+        /* Transiciones para hover */
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
     }
 
         .button-row button:hover {
             background-color: #12263c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Efecto de "presión" al hacer click */
+        .button-row button:active {
+            transform: scale(0.98);
         }
 
 .login-link {
