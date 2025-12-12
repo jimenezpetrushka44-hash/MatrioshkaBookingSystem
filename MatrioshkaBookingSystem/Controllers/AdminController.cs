@@ -4,15 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Controller
     public class AdminController : Controller
     {
+       
         public readonly BookingDbContext _context;
 
+        // contructpor
         public AdminController(BookingDbContext context)
         {
             _context = context;
         }
 
+        // Admins:
         public IActionResult Admins()
         {
             ViewData["BodyClass"] = "admin-page";
@@ -35,6 +39,7 @@ namespace MatrioshkaBookingSystem.Controllers
             var roomAssets = _context.Roomassets.ToList();
             var extraAssets = _context.Extraassets.ToList();
 
+            // View model creation
             var model = new AdminViewModel
             {
                 Users = users,

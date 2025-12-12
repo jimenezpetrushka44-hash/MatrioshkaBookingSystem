@@ -4,13 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 public class FloorsController : Controller
 {
+    // Controller
     private readonly BookingDbContext _context;
 
+    // Constructor:
     public FloorsController(BookingDbContext context)
     {
         _context = context;
     }
 
+    // Create get
     public IActionResult Create()
     {
         ViewData["BodyClass"] = "admin-page";
@@ -18,10 +21,13 @@ public class FloorsController : Controller
         return View();
     }
 
+    // Create post
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Create(Floor floor)
     {
+        // Validation
         if (ModelState.IsValid)
         {
             _context.Floors.Add(floor);
@@ -34,6 +40,7 @@ public class FloorsController : Controller
         return View(floor);
     }
 
+    // Edit GET
     public IActionResult Edit(int id)
     {
         var floor = _context.Floors.FirstOrDefault(f => f.FloorId == id);
@@ -44,6 +51,7 @@ public class FloorsController : Controller
         return View(floor);
     }
 
+    // Edit POST
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Edit(int id, Floor updatedFloor)
@@ -52,6 +60,7 @@ public class FloorsController : Controller
         if (floor == null)
             return NotFound();
 
+        // Validation:
         if (ModelState.IsValid)
         {
             floor.FloorStatus = updatedFloor.FloorStatus;
@@ -65,6 +74,7 @@ public class FloorsController : Controller
         return View(updatedFloor);
     }
 
+    // Delete egt
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -80,6 +90,8 @@ public class FloorsController : Controller
         return View(floor);
     }
 
+    // Delete post
+
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
@@ -88,6 +100,7 @@ public class FloorsController : Controller
             .Include(f => f.Rooms)
             .FirstOrDefaultAsync(f => f.FloorId == id);
 
+        // Validation
         if (floor != null)
         {
             if (floor.Rooms.Any())

@@ -13,34 +13,41 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Controller
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly BookingDbContext _context;
 
+        // Constructor
         public HomeController(ILogger<HomeController> logger, BookingDbContext context)
         {
             _logger = logger;
             _context = context;
         }
 
+        //Index get
         public IActionResult Index()
         {
             return View();
         }
 
+        // Privacy get:
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // Login Post
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
+            // Whole Login validation:
             var user = _context.Users
                 .Include(u => u.Roles)
                 .FirstOrDefault(u => u.Username == username && u.UserPassword == password);
 
+            // In case is null 
             if (user == null)
             {
                 ViewBag.Error = "Wrong username or password!";
@@ -49,6 +56,7 @@ namespace MatrioshkaBookingSystem.Controllers
 
             var userRoleName = user.Roles.FirstOrDefault()?.RoleName;
 
+            // in case there's no role in user
             if (userRoleName == null)
             {
                 ViewBag.Error = "User has no roles assigned!";
@@ -63,10 +71,11 @@ namespace MatrioshkaBookingSystem.Controllers
             };
 
             var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme); // Usando la referencia simplificada
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
+            // Redirecting based on the role: 
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme, // Usando la referencia simplificada
+                CookieAuthenticationDefaults.AuthenticationScheme, 
                 new ClaimsPrincipal(claimsIdentity));
 
             if (userRoleName == "Admin")
@@ -79,14 +88,16 @@ namespace MatrioshkaBookingSystem.Controllers
             return View("Index");
         }
 
+        // Logout get
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme); // Usando la referencia simplificada
+                CookieAuthenticationDefaults.AuthenticationScheme); 
 
             return RedirectToAction("Index", "Home");
         }
 
+        // Admins get:
         public IActionResult Admins()
         {
             var vm = new AdminViewModel
@@ -105,6 +116,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(vm);
         }
 
+        // Clients get
         public IActionResult Clients()
         {
             var hotels = _context.Hotels.ToList();
@@ -112,15 +124,18 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotels);
         }
 
+        // Register get
         public IActionResult Register()
         {
             return View();
         }
 
+        // Register post
         [HttpPost]
         public IActionResult Register(string firstName, string lastName, string email, string phone,
                                      string username, string password, string role)
         {
+            // Creating user 
             User newUser = new User
             {
                 FirstName = firstName,
@@ -131,12 +146,15 @@ namespace MatrioshkaBookingSystem.Controllers
                 UserPassword = password,
                 Roles = new List<Role>()
             };
+            // Adding user
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
+            // Assigning role
             var selectedRole = _context.Roles.FirstOrDefault(r => r.RoleName == role);
 
+            // Validation:
             if (selectedRole != null)
             {
                 newUser.Roles.Add(selectedRole);

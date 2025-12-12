@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
-
+    // Controller
     public class ExtraassetsController : Controller
     {
         private readonly BookingDbContext _context;
 
+        // Contructor:
         public ExtraassetsController(BookingDbContext context)
         {
             _context = context;

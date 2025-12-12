@@ -13,25 +13,32 @@ using System.IO;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Only admins can edit hotels
     [Authorize(Roles = "Admin")]
     public class HotelsController : Controller
     {
+        // Controller 
         private readonly BookingDbContext _context;
         private readonly IWebHostEnvironment _env;
 
+        // Constructor
         public HotelsController(BookingDbContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
         }
 
+        // Index get
         public async Task<IActionResult> Index()
         {
             return View(await _context.Hotels.ToListAsync());
         }
 
+        // Details get
         public async Task<IActionResult> Details(int? id)
         {
+
+            // Validation
             if (id == null)
                 return NotFound();
 
@@ -42,16 +49,19 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
+        // Create 
         public IActionResult Create()
         {
             ViewData["BodyClass"] = "admin-page";
             return View();
         }
 
+        // Create post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("HotelId,HotelName,HotelLocation,HotelStatus")] Hotel hotel, IFormFile HotelImage)
         {
+            // Validation
             if (ModelState.IsValid)
             {
                 if (HotelImage != null && HotelImage.Length > 0)
@@ -69,6 +79,7 @@ namespace MatrioshkaBookingSystem.Controllers
                         await HotelImage.CopyToAsync(stream);
                     }
 
+                    // For images
                     hotel.ImagePath = "/img/Hotels/" + filename;
                 }
 
@@ -80,6 +91,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
+        // Edit get
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -92,11 +104,13 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(hotel);
         }
 
+        // Edit ppost
         [HttpPost]
         [ValidateAntiForgeryToken]
 
         public async Task<IActionResult> Edit(int id, Hotel hotel, IFormFile ImageFile)
         {
+            // Validation:
             var hotelToUpdate = await _context.Hotels.FirstOrDefaultAsync(h => h.HotelId == id);
 
             if (hotelToUpdate == null)
@@ -106,6 +120,7 @@ namespace MatrioshkaBookingSystem.Controllers
             hotelToUpdate.HotelLocation = hotel.HotelLocation;
             hotelToUpdate.HotelStatus = hotel.HotelStatus;
 
+            // Validation for images:
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 string folderPath = Path.Combine(_env.WebRootPath, "img", "Hotels");
@@ -123,7 +138,7 @@ namespace MatrioshkaBookingSystem.Controllers
 
                 hotelToUpdate.ImagePath = "/img/Hotels/" + filename;
             }
-
+            // Saving changes
             try
             {
                 _context.Update(hotelToUpdate);
@@ -136,6 +151,7 @@ namespace MatrioshkaBookingSystem.Controllers
             }
         }
 
+        // Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -147,7 +163,7 @@ namespace MatrioshkaBookingSystem.Controllers
 
             return View(hotel);
         }
-
+        //delete post
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -162,6 +178,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return RedirectToAction("Admins", "Admin");
         }
 
+        // Validating if hotel exists
         private bool HotelExists(int id)
         {
             return _context.Hotels.Any(e => e.HotelId == id);

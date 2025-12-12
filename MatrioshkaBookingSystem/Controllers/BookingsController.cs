@@ -8,13 +8,15 @@ namespace MatrioshkaBookingSystem.Controllers
 {
     public class BookingsController : Controller
     {
+        //controller
         private readonly BookingDbContext _context;
-
+        //Constructor
         public BookingsController(BookingDbContext context)
         {
             _context = context;
         }
 
+        // Index List of bookings
         public async Task<IActionResult> Index()
         {
             var bookings = _context.Bookings
@@ -26,6 +28,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(await bookings.ToListAsync());
         }
 
+        //Create GET
         public IActionResult Create(int hotelId)
         {
             var hotel = _context.Hotels.Find(hotelId);
@@ -54,6 +57,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(new Booking());
         }
 
+        // Create Post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -64,22 +68,26 @@ namespace MatrioshkaBookingSystem.Controllers
             var username = User.FindFirstValue(ClaimTypes.Name);
             var user = _context.Users.FirstOrDefault(u => u.Username == username);
 
+            // Validation:
             if (user == null)
                 return RedirectToAction("Login", "Account");
 
             booking.UserId = user.UserId;
 
+            //Date Validation
             if (booking.DateofBooking >= booking.EndofBooking)
             {
                 ModelState.AddModelError("", "End date must be after start date.");
                 return View(booking);
             }
 
+            // Booking Conflict Validation
             var conflict = _context.Bookings
                 .Where(b => b.RoomId == booking.RoomId)
                 .Where(b => booking.DateofBooking < b.EndofBooking &&
                             booking.EndofBooking > b.DateofBooking)
                 .Any();
+
 
             if (conflict)
             {
@@ -87,6 +95,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 return View(booking);
             }
 
+            // Billing Creation:
             if (Billing != null)
             {
                 Billing.UserId = user.UserId;
@@ -97,6 +106,7 @@ namespace MatrioshkaBookingSystem.Controllers
                 booking.Billing = Billing;
             }
 
+            // Booking Creations:
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
@@ -122,6 +132,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return RedirectToAction("Invoice", new { id = booking.BookingId });
         }
 
+        // Invoice Creation:
         public async Task<IActionResult> Invoice(int id)
         {
             var booking = await _context.Bookings
@@ -160,6 +171,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(vm);
         }
 
+        // Delete GET
         public async Task<IActionResult> Delete(int id)
         {
             var booking = await _context.Bookings
@@ -173,6 +185,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(booking);
         }
 
+        // Delete POST
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]

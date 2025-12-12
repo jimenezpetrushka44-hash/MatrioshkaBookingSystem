@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Controller
     public class RoomsController : Controller
     {
         private readonly BookingDbContext _context;
 
+        // Constructor
         public RoomsController(BookingDbContext context)
         {
             _context = context;

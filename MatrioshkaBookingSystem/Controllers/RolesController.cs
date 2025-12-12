@@ -9,10 +9,12 @@ using MatrioshkaBookingSystem.Models;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Controller:
     public class RolesController : Controller
     {
         private readonly BookingDbContext _context;
 
+        // Contructor:
         public RolesController(BookingDbContext context)
         {
             _context = context;

@@ -8,11 +8,15 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MatrioshkaBookingSystem.Controllers
 {
+    // Only admins :
     [Authorize(Roles = "Admin")]
+
+    // Controller:
     public class UsersController : Controller
     {
         private readonly BookingDbContext _context;
 
+        // Contructor
         public UsersController(BookingDbContext context)
         {
             _context = context;
@@ -24,6 +28,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View();
         }
 
+        // Create post:
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -35,12 +40,14 @@ namespace MatrioshkaBookingSystem.Controllers
             string username,
             string password)
         {
+            // Validation:
             if (_context.Users.Any(u => u.Username == username))
             {
                 ModelState.AddModelError("", "Username already exists.");
                 return View();
             }
 
+            // new user
             var user = new User
             {
                 FirstName = firstName,
@@ -51,11 +58,14 @@ namespace MatrioshkaBookingSystem.Controllers
                 UserPassword = password
             };
 
+            // Adding the new user
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            //roles:
             var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Client");
 
+            //validating roles:
             if (defaultRole != null)
             {
                 user.Roles.Add(defaultRole);
@@ -65,11 +75,13 @@ namespace MatrioshkaBookingSystem.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        // Index get
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
         }
 
+        // detaild get
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -85,6 +97,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(user);
         }
 
+        // edit get:
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -104,6 +117,8 @@ namespace MatrioshkaBookingSystem.Controllers
 
             return View(user);
         }
+
+        // edit post
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -139,6 +154,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(userToUpdate);
         }
 
+        // delete get
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -153,6 +169,7 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(user);
         }
 
+        // delete post
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
