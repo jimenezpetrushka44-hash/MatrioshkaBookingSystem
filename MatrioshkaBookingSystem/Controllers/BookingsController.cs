@@ -171,6 +171,61 @@ namespace MatrioshkaBookingSystem.Controllers
             return View(vm);
         }
 
+        // Edit GET:
+        public async Task<IActionResult> Edit(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Billing)
+                .Include(b => b.Room)
+                .FirstOrDefaultAsync(b => b.BookingId == id);
+
+            if (booking == null)
+                return NotFound();
+
+            ViewData["RoomId"] = new SelectList(
+                _context.Rooms.Where(r => r.RoomStatus == "Available" || r.RoomId == booking.RoomId),
+                "RoomId",
+                "RoomId",
+                booking.RoomId
+            );
+
+            return View(booking);
+        }
+
+        // Edit POST:
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Booking booking)
+        {
+            if (id != booking.BookingId)
+                return NotFound();
+
+            var existingBooking = await _context.Bookings
+                .Include(b => b.Billing)
+                .FirstOrDefaultAsync(b => b.BookingId == id);
+
+            if (existingBooking == null)
+                return NotFound();
+
+            existingBooking.RoomId = booking.RoomId;
+            existingBooking.DateofBooking = booking.DateofBooking;
+            existingBooking.EndofBooking = booking.EndofBooking;
+
+            if (existingBooking.Billing != null && booking.Billing != null)
+            {
+                existingBooking.Billing.FullName = booking.Billing.FullName;
+                existingBooking.Billing.Email = booking.Billing.Email;
+                existingBooking.Billing.BillingAddress = booking.Billing.BillingAddress;
+                existingBooking.Billing.CardNumber = booking.Billing.CardNumber;
+                existingBooking.Billing.ExpirationDate = booking.Billing.ExpirationDate;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Admins", "Admin");
+        }
+
+
         // Delete GET
         public async Task<IActionResult> Delete(int id)
         {
