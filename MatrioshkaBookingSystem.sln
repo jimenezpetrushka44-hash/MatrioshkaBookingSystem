@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36705.20 d17.14
+VisualStudioVersion = 17.14.36705.20
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrioshkaBookingSystem", "MatrioshkaBookingSystem\MatrioshkaBookingSystem.csproj", "{F262386E-4F7C-4DAE-B699-C4F82E7E88BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingTest.cs", "BookingTest.cs\BookingTest.cs.csproj", "{7DCF85B8-DC27-4D1D-B46A-D0F2858AA1CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F262386E-4F7C-4DAE-B699-C4F82E7E88BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F262386E-4F7C-4DAE-B699-C4F82E7E88BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F262386E-4F7C-4DAE-B699-C4F82E7E88BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DCF85B8-DC27-4D1D-B46A-D0F2858AA1CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DCF85B8-DC27-4D1D-B46A-D0F2858AA1CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DCF85B8-DC27-4D1D-B46A-D0F2858AA1CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DCF85B8-DC27-4D1D-B46A-D0F2858AA1CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
