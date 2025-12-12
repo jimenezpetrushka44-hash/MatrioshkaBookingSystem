@@ -200,24 +200,30 @@ namespace MatrioshkaBookingSystem.Controllers
             if (id != booking.BookingId)
                 return NotFound();
 
-            var existingBooking = await _context.Bookings
+            var dbBooking = await _context.Bookings
                 .Include(b => b.Billing)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
 
-            if (existingBooking == null)
+            if (dbBooking == null)
                 return NotFound();
 
-            existingBooking.RoomId = booking.RoomId;
-            existingBooking.DateofBooking = booking.DateofBooking;
-            existingBooking.EndofBooking = booking.EndofBooking;
+            // IDs que NO deben perderse
+            booking.UserId = dbBooking.UserId;
+            booking.BillingId = dbBooking.BillingId;
 
-            if (existingBooking.Billing != null && booking.Billing != null)
+            // Campos editables
+            dbBooking.RoomId = booking.RoomId;
+            dbBooking.DateofBooking = booking.DateofBooking;
+            dbBooking.EndofBooking = booking.EndofBooking;
+
+            // Billing
+            if (dbBooking.Billing != null && booking.Billing != null)
             {
-                existingBooking.Billing.FullName = booking.Billing.FullName;
-                existingBooking.Billing.Email = booking.Billing.Email;
-                existingBooking.Billing.BillingAddress = booking.Billing.BillingAddress;
-                existingBooking.Billing.CardNumber = booking.Billing.CardNumber;
-                existingBooking.Billing.ExpirationDate = booking.Billing.ExpirationDate;
+                dbBooking.Billing.FullName = booking.Billing.FullName;
+                dbBooking.Billing.Email = booking.Billing.Email;
+                dbBooking.Billing.BillingAddress = booking.Billing.BillingAddress;
+                dbBooking.Billing.CardNumber = booking.Billing.CardNumber;
+                dbBooking.Billing.ExpirationDate = booking.Billing.ExpirationDate;
             }
 
             await _context.SaveChangesAsync();
