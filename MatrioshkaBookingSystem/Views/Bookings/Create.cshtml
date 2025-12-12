@@ -12,24 +12,23 @@
 <div class="booking-wrapper">
 
     <div class="side-illustration">
-        <h1 class="big-title">Crear una</h1>
-        <h1 class="accent-title">Reserva</h1>
-        <p class="form-note">
-            Please fill what is asked.
-        </p>
+        <h1 class="big-title">Create a</h1>
+        <h1 class="accent-title">Booking</h1>
+        <p class="form-note">Please fill what is asked.</p>
     </div>
 
     <div class="form-section">
         <div class="form-card">
+
             <h2 class="form-title">Booking Details</h2>
 
-            <form asp-action="Create">
+            <form asp-action="Create" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
 
                 <div class="form-group">
-                    <label class="control-label">Hotel Seleccionado:</label>
+                    <label class="control-label">Hotel Selected:</label>
                     <div class="selected-hotel-display">
                         <strong style="font-size: 1.1em;">@ViewBag.SelectedHotelName</strong>
                     </div>
@@ -42,7 +41,7 @@
                     <select asp-for="RoomId"
                             class="form-control select-styled"
                             asp-items="@(ViewData["RoomId"] as SelectList)">
-                        <option value="">Selecciona una habitación</option>
+                        <option value="">Select a room</option>
                     </select>
                     <span asp-validation-for="RoomId" class="text-danger"></span>
                 </div>
@@ -52,55 +51,44 @@
                 <h2 class="form-title">Billing Information</h2>
 
                 <div class="form-group">
-                    <label asp-for="Billing.FullName" class="control-label">Full Name on Card:</label>
+                    <label asp-for="Billing.FullName">Full Name on Card:</label>
                     <input asp-for="Billing.FullName" class="form-control" required />
-                    <span asp-validation-for="Billing.FullName" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Billing.Email" class="control-label">Email:</label>
-                    <input asp-for="Billing.Email" type="email" class="form-control" required />
-                    <span asp-validation-for="Billing.Email" class="text-danger"></span>
+                    <label asp-for="Billing.Email">Email:</label>
+                    <input asp-for="Billing.Email" class="form-control" type="email" required />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Billing.BillingAddress" class="control-label">Billing Address:</label>
+                    <label asp-for="Billing.BillingAddress">Billing Address:</label>
                     <input asp-for="Billing.BillingAddress" class="form-control" required />
-                    <span asp-validation-for="Billing.BillingAddress" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Billing.CardNumber" class="control-label">Card Number:</label>
+                    <label asp-for="Billing.CardNumber">Card Number:</label>
                     <input asp-for="Billing.CardNumber" class="form-control" required />
-                    <span asp-validation-for="Billing.CardNumber" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Billing.ExpirationDate" class="control-label">Expiration (MM/YY):</label>
+                    <label asp-for="Billing.ExpirationDate">Expiration (MM/YY):</label>
                     <input asp-for="Billing.ExpirationDate" class="form-control" placeholder="MM/YY" required />
-                    <span asp-validation-for="Billing.ExpirationDate" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="DateofBooking" class="control-label">Start date:</label>
-                    <input asp-for="DateofBooking" class="form-control" type="date" />
-                    <span asp-validation-for="DateofBooking" class="text-danger"></span>
+                    <label asp-for="DateofBooking">Start date:</label>
+                    <input asp-for="DateofBooking" type="date" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="EndofBooking" class="control-label">End date:</label>
-                    <input asp-for="EndofBooking" class="form-control" type="date" />
-                    <span asp-validation-for="EndofBooking" class="text-danger"></span>
+                    <label asp-for="EndofBooking">End date:</label>
+                    <input asp-for="EndofBooking" type="date" class="form-control" />
                 </div>
 
                 @if (ViewBag.ExtraAssets != null && ViewBag.ExtraAssets.Count > 0)
                 {
                     <hr style="border-top: 1px solid #b7d7ee; margin: 30px 0 20px 0;" />
-
                     <h2 class="form-title">Extra Assets</h2>
-                    <p class="form-note" style="margin-bottom: 20px;">
-                        Select Extra Assets.
-                    </p>
 
                     <div class="extra-asset-checkbox-group">
                         @foreach (var asset in ViewBag.ExtraAssets)
@@ -111,8 +99,7 @@
                                        value="@asset.ExtraAssetId"
                                        id="extra_asset_@asset.ExtraAssetId" />
                                 <label for="extra_asset_@asset.ExtraAssetId">
-                                    @asset.ExtraAssetName
-                                    (<span class="asset-price">@asset.AssetPrice.ToString("C")</span>)
+                                    @asset.ExtraAssetName (<span>@asset.AssetPrice.ToString("C")</span>)
                                 </label>
                             </div>
                         }
@@ -120,7 +107,7 @@
                 }
 
                 <div class="form-group submit-group">
-                    <button type="submit" value="Create" class="btn btn-primary create-btn">Create Booking</button>
+                    <button type="submit" class="btn btn-primary create-btn">Create Booking</button>
                     <a asp-action="Index" class="btn btn-secondary back-btn">Go back</a>
                 </div>
             </form>
@@ -129,7 +116,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

@@ -29,9 +29,7 @@ namespace MatrioshkaBookingSystem.Controllers
         public IActionResult Create(int hotelId)
         {
             var hotel = _context.Hotels.Find(hotelId);
-
-            if (hotel == null)
-                return NotFound();
+            if (hotel == null) return NotFound();
 
             ViewBag.SelectedHotelName = hotel.HotelName;
             ViewBag.SelectedHotelId = hotelId;
@@ -59,7 +57,7 @@ namespace MatrioshkaBookingSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("RoomId,DateofBooking,EndofBooking")] Booking booking,
+            Booking booking,
             Billinginfo Billing,
             int[] SelectedExtraAssets)
         {
@@ -71,6 +69,12 @@ namespace MatrioshkaBookingSystem.Controllers
 
             booking.UserId = user.UserId;
 
+            if (booking.DateofBooking >= booking.EndofBooking)
+            {
+                ModelState.AddModelError("", "End date must be after start date.");
+                return View(booking);
+            }
+
             var conflict = _context.Bookings
                 .Where(b => b.RoomId == booking.RoomId)
                 .Where(b => booking.DateofBooking < b.EndofBooking &&
@@ -79,8 +83,8 @@ namespace MatrioshkaBookingSystem.Controllers
 
             if (conflict)
             {
-                ModelState.AddModelError("", "This room is already booked for those dates.");
-                return Redirect(Request.Headers["Referer"].ToString());
+                ModelState.AddModelError("", "This room is already booked.");
+                return View(booking);
             }
 
             if (Billing != null)
@@ -88,13 +92,15 @@ namespace MatrioshkaBookingSystem.Controllers
                 Billing.UserId = user.UserId;
                 _context.Billinginfos.Add(Billing);
                 await _context.SaveChangesAsync();
+
                 booking.BillingId = Billing.BillingId;
+                booking.Billing = Billing;
             }
 
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            if (SelectedExtraAssets != null && SelectedExtraAssets.Length > 0)
+            if (SelectedExtraAssets != null)
             {
                 foreach (var id in SelectedExtraAssets)
                 {
@@ -109,6 +115,7 @@ namespace MatrioshkaBookingSystem.Controllers
                         });
                     }
                 }
+
                 await _context.SaveChangesAsync();
             }
 
@@ -125,12 +132,12 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(b => b.Bookingextraassets).ThenInclude(be => be.ExtraAsset)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
 
-            if (booking == null)
-                return NotFound();
+            if (booking == null) return NotFound();
 
             var roomPrice = booking.Room.Type.TypePrice;
+
             var nights = (int)(booking.EndofBooking.ToDateTime(TimeOnly.MinValue)
-                             - booking.DateofBooking.ToDateTime(TimeOnly.MinValue)).TotalDays;
+                - booking.DateofBooking.ToDateTime(TimeOnly.MinValue)).TotalDays;
 
             var extras = booking.Bookingextraassets.Sum(e => e.ExtraAssetPrice);
             var subtotal = (roomPrice * nights) + extras;
@@ -161,13 +168,13 @@ namespace MatrioshkaBookingSystem.Controllers
                 .Include(b => b.Billing)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
 
-            if (booking == null)
-                return NotFound();
+            if (booking == null) return NotFound();
 
             return View(booking);
         }
 
         [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

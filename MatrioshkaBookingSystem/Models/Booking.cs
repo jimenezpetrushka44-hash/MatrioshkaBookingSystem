@@ -23,7 +23,9 @@ public partial class Booking
     [ValidateNever]
     public virtual ICollection<Bookingextraasset> Bookingextraassets { get; set; } = new List<Bookingextraasset>();
 
+    [ValidateNever]
     public virtual Room? Room { get; set; }
 
+    [ValidateNever]
     public virtual User? User { get; set; }
 }
